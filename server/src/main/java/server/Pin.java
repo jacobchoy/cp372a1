@@ -3,35 +3,39 @@ package server;
 /**
  * Represents a pin on the bulletin board.
  * 
- * A pin is defined by a coordinate (x, y) and must be placed inside
- * an existing note. A note may have multiple pins, and a note is
- * considered pinned if it has at least one active pin.
+ * RFC Section 4.4: A pin is defined by a coordinate (x, y) on the board.
+ * A pin MAY be placed only at a coordinate that lies inside at least one existing note.
+ * A single pin coordinate MAY be associated with multiple notes if those notes partially overlap.
+ * 
+ * Note: Internally, pins may have IDs for tracking, but the protocol uses coordinates.
  * 
  * @author Team Members
  * @version 1.0
  */
 public class Pin {
-    private String id;
+    private String id; // Internal ID for tracking (not used in protocol)
     private int x;
     private int y;
-    private String noteId; // The ID of the note this pin belongs to
     
     /**
-     * Constructs a new Pin with the specified properties.
+     * Constructs a new Pin with the specified coordinates.
      * 
-     * @param id The unique identifier for this pin
+     * RFC Section 7.3: PIN x y - coordinates are used to identify pins in the protocol.
+     * 
+     * @param id Internal identifier for tracking (optional, may be generated)
      * @param x The x-coordinate of the pin
      * @param y The y-coordinate of the pin
-     * @param noteId The ID of the note this pin is associated with
      */
-    public Pin(String id, int x, int y, String noteId) {
+    public Pin(String id, int x, int y) {
         // Implementation will go here
     }
     
     /**
-     * Gets the unique identifier of this pin.
+     * Gets the internal identifier of this pin.
      * 
-     * @return The pin's ID
+     * Note: The protocol uses coordinates, not IDs, but IDs may be useful for internal tracking.
+     * 
+     * @return The pin's internal ID
      */
     public String getId() {
         return id;
@@ -56,12 +60,17 @@ public class Pin {
     }
     
     /**
-     * Gets the ID of the note this pin is associated with.
+     * Checks if this pin is at the specified coordinates.
      * 
-     * @return The note's ID
+     * RFC Section 7.4: UNPIN x y removes pins by coordinate, not ID.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if this pin is at the specified coordinates
      */
-    public String getNoteId() {
-        return noteId;
+    public boolean isAt(int x, int y) {
+        // Implementation will go here
+        return false;
     }
     
     /**

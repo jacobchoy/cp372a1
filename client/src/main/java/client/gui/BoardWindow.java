@@ -76,37 +76,65 @@ public class BoardWindow extends JFrame {
     }
     
     /**
-     * Handles the QUERY button click to retrieve notes.
+     * Handles the GET button click to retrieve notes.
+     * 
+     * RFC Section 7.2: Supports GET PINS or GET with filters (colour=, contains=, refersTo=)
      */
-    private void handleQueryNotes() {
+    private void handleGet() {
         // Implementation will go here
     }
     
     /**
-     * Handles the PIN button click to add a pin to a note.
+     * Handles the GET PINS button click to retrieve all pins.
+     * 
+     * RFC Section 7.2.1: GET PINS returns all pin coordinates
      */
-    private void handlePinNote() {
+    private void handleGetPins() {
         // Implementation will go here
     }
     
     /**
-     * Handles the UNPIN button click to remove a pin from a note.
+     * Handles the PIN button click to add a pin at coordinates.
+     * 
+     * RFC Section 7.3: PIN x y places a pin at (x, y)
      */
-    private void handleUnpinNote() {
+    private void handlePin() {
         // Implementation will go here
     }
     
     /**
-     * Handles the DELETE button click to remove a note.
+     * Handles the UNPIN button click to remove a pin at coordinates.
+     * 
+     * RFC Section 7.4: UNPIN x y removes one pin at (x, y)
      */
-    private void handleDeleteNote() {
+    private void handleUnpin() {
         // Implementation will go here
     }
     
     /**
-     * Handles the CLEAR button click to remove all notes.
+     * Handles the SHAKE button click to remove all unpinned notes.
+     * 
+     * RFC Section 7.5: SHAKE removes all unpinned notes
+     */
+    private void handleShake() {
+        // Implementation will go here
+    }
+    
+    /**
+     * Handles the CLEAR button click to remove all notes and pins.
+     * 
+     * RFC Section 7.6: CLEAR removes all notes and all pins
      */
     private void handleClear() {
+        // Implementation will go here
+    }
+    
+    /**
+     * Handles the DISCONNECT button click to close the connection.
+     * 
+     * RFC Section 7.7: DISCONNECT ends the client's connection
+     */
+    private void handleDisconnect() {
         // Implementation will go here
     }
     

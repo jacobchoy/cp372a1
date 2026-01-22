@@ -30,14 +30,29 @@ public class Message {
     }
     
     /**
-     * Constructs a QUERY command message.
+     * Constructs a GET PINS command message.
      * 
-     * Format: QUERY [noteId] or QUERY (for all notes)
+     * RFC Section 7.2.1: Format: GET PINS
      * 
-     * @param noteId The note ID to query, or null to query all notes
      * @return The formatted command string
      */
-    public static String buildQueryCommand(String noteId) {
+    public static String buildGetPinsCommand() {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Constructs a GET command with filter criteria.
+     * 
+     * RFC Section 7.2.2: Format: GET [colour=<colour>] [contains=<x> <y>] [refersTo=<substring>]
+     * 
+     * @param colour Optional colour filter (null if not filtering by colour)
+     * @param containsX Optional x-coordinate for contains filter (null if not filtering)
+     * @param containsY Optional y-coordinate for contains filter (null if not filtering)
+     * @param refersTo Optional substring for refersTo filter (null if not filtering)
+     * @return The formatted command string
+     */
+    public static String buildGetCommand(String colour, Integer containsX, Integer containsY, String refersTo) {
         // Implementation will go here
         return "";
     }
@@ -45,14 +60,13 @@ public class Message {
     /**
      * Constructs a PIN command message.
      * 
-     * Format: PIN noteId x y
+     * RFC Section 7.3: Format: PIN x y
      * 
-     * @param noteId The ID of the note to pin
-     * @param x The x-coordinate of the pin
-     * @param y The y-coordinate of the pin
+     * @param x The x-coordinate where to place the pin
+     * @param y The y-coordinate where to place the pin
      * @return The formatted command string
      */
-    public static String buildPinCommand(String noteId, int x, int y) {
+    public static String buildPinCommand(int x, int y) {
         // Implementation will go here
         return "";
     }
@@ -60,25 +74,37 @@ public class Message {
     /**
      * Constructs an UNPIN command message.
      * 
-     * Format: UNPIN pinId
+     * RFC Section 7.4: Format: UNPIN x y
      * 
-     * @param pinId The ID of the pin to remove
+     * @param x The x-coordinate of the pin to remove
+     * @param y The y-coordinate of the pin to remove
      * @return The formatted command string
      */
-    public static String buildUnpinCommand(String pinId) {
+    public static String buildUnpinCommand(int x, int y) {
         // Implementation will go here
         return "";
     }
     
     /**
-     * Constructs a DELETE command message.
+     * Constructs a SHAKE command message.
      * 
-     * Format: DELETE noteId
+     * RFC Section 7.5: Format: SHAKE
      * 
-     * @param noteId The ID of the note to delete
      * @return The formatted command string
      */
-    public static String buildDeleteCommand(String noteId) {
+    public static String buildShakeCommand() {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Constructs a DISCONNECT command message.
+     * 
+     * RFC Section 7.7: Format: DISCONNECT
+     * 
+     * @return The formatted command string
+     */
+    public static String buildDisconnectCommand() {
         // Implementation will go here
         return "";
     }
@@ -111,39 +137,87 @@ public class Message {
     /**
      * Constructs an ERROR response message.
      * 
-     * Format: ERROR reason
+     * RFC Section 8.2: Format: ERROR <ERROR_CODE> <human-readable message>
      * 
-     * @param reason The error reason
+     * @param errorCode The error code (e.g., "OUT_OF_BOUNDS", "INVALID_FORMAT")
+     * @param message The human-readable error message
      * @return The formatted response string
      */
-    public static String buildErrorResponse(String reason) {
+    public static String buildErrorResponse(String errorCode, String message) {
         // Implementation will go here
         return "";
     }
     
     /**
-     * Parses a NOTE response message.
+     * Constructs the handshake response message.
      * 
-     * Format: NOTE noteId x y color message [pinned]
+     * RFC Section 8.1: Format: OK BOARD <board_width> <board_height> NOTE <note_width> <note_height> colourS <colour1> <colour2> ... <colourN>
      * 
-     * @param message The message string to parse
-     * @return An array containing [noteId, x, y, color, message, pinned] or null if invalid
+     * @param boardWidth The board width
+     * @param boardHeight The board height
+     * @param noteWidth The note width
+     * @param noteHeight The note height
+     * @param colours The list of valid colours
+     * @return The formatted handshake response string
      */
-    public static String[] parseNoteResponse(String message) {
+    public static String buildHandshakeResponse(int boardWidth, int boardHeight, int noteWidth, int noteHeight, java.util.List<String> colours) {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Parses a note list from GET response.
+     * 
+     * RFC Section 7.2.2: Format: OK x y colour content;x y colour content;...
+     * 
+     * @param response The response string (without "OK " prefix)
+     * @return A list of note data arrays, each containing [x, y, colour, content]
+     */
+    public static java.util.List<String[]> parseNoteList(String response) {
         // Implementation will go here
         return null;
     }
     
     /**
-     * Parses a PIN response message.
+     * Parses a pin list from GET PINS response.
      * 
-     * Format: PIN pinId x y noteId
+     * RFC Section 7.2.1: Format: OK x1 y1;x2 y2;...
      * 
-     * @param message The message string to parse
-     * @return An array containing [pinId, x, y, noteId] or null if invalid
+     * @param response The response string (without "OK " prefix)
+     * @return A list of pin coordinate arrays, each containing [x, y]
      */
-    public static String[] parsePinResponse(String message) {
+    public static java.util.List<String[]> parsePinList(String response) {
         // Implementation will go here
         return null;
+    }
+    
+    /**
+     * Formats a note for response output.
+     * 
+     * RFC Section 7.2.2: Format: x y colour content
+     * 
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @param colour The note colour
+     * @param content The note content
+     * @return The formatted note string
+     */
+    public static String formatNote(int x, int y, String colour, String content) {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Formats a pin for response output.
+     * 
+     * RFC Section 7.2.1: Format: x y
+     * 
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @return The formatted pin string
+     */
+    public static String formatPin(int x, int y) {
+        // Implementation will go here
+        return "";
     }
 }

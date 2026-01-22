@@ -52,12 +52,12 @@ public class ClientHandler implements Runnable {
     }
     
     /**
-     * Sends the initial connection message to the client.
+     * Sends the initial handshake message to the client.
      * 
-     * This message includes:
-     * - Board dimensions (width, height)
-     * - Note dimensions (width, height)
-     * - Current state of all notes and pins
+     * RFC Section 8.1: Handshake format:
+     * OK BOARD <board_width> <board_height> NOTE <note_width> <note_height> colourS <colour1> <colour2> ... <colourN>
+     * 
+     * This message is sent immediately upon accepting a new client connection.
      */
     private void sendInitialMessage() {
         // Implementation will go here
@@ -87,45 +87,82 @@ public class ClientHandler implements Runnable {
     }
     
     /**
-     * Handles the QUERY command to retrieve notes.
+     * Handles the GET command to retrieve notes or pins.
      * 
-     * @param params The parameters for the QUERY command
+     * RFC Section 7.2: GET has two forms:
+     * - GET PINS: Returns all pin coordinates
+     * - GET [filters]: Returns notes matching criteria (colour=, contains=, refersTo=)
+     * 
+     * @param params The parameters for the GET command
      * @return The response message to send to the client
      */
-    private String handleQueryNotes(String params) {
+    private String handleGet(String params) {
         // Implementation will go here
         return "";
     }
     
     /**
-     * Handles the PIN command to add a pin to a note.
+     * Handles GET PINS subcommand.
      * 
-     * @param params The parameters for the PIN command
-     * @return The response message to send to the client
+     * RFC Section 7.2.1: Returns all pin coordinates as "x1 y1;x2 y2;..."
+     * 
+     * @return The response message with pin coordinates
      */
-    private String handlePinNote(String params) {
+    private String handleGetPins() {
         // Implementation will go here
         return "";
     }
     
     /**
-     * Handles the UNPIN command to remove a pin from a note.
+     * Handles GET with filter criteria.
      * 
-     * @param params The parameters for the UNPIN command
-     * @return The response message to send to the client
+     * RFC Section 7.2.2: GET [colour=<colour>] [contains=<x> <y>] [refersTo=<substring>]
+     * All criteria are combined with logical AND.
+     * 
+     * @param params The filter parameters
+     * @return The response message with matching notes as "x y colour content;..."
      */
-    private String handleUnpinNote(String params) {
+    private String handleGetWithFilters(String params) {
         // Implementation will go here
         return "";
     }
     
     /**
-     * Handles the DELETE command to remove a note.
+     * Handles the PIN command to add a pin at coordinates.
      * 
-     * @param params The parameters for the DELETE command
+     * RFC Section 7.3: PIN x y places a pin at (x, y).
+     * All notes covering that coordinate become pinned.
+     * 
+     * @param params The parameters for the PIN command (x y)
      * @return The response message to send to the client
      */
-    private String handleDeleteNote(String params) {
+    private String handlePin(String params) {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Handles the UNPIN command to remove a pin at coordinates.
+     * 
+     * RFC Section 7.4: UNPIN x y removes one pin at (x, y).
+     * 
+     * @param params The parameters for the UNPIN command (x y)
+     * @return The response message to send to the client
+     */
+    private String handleUnpin(String params) {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Handles the SHAKE command to remove all unpinned notes.
+     * 
+     * RFC Section 7.5: SHAKE removes all unpinned notes.
+     * The operation MUST be atomic.
+     * 
+     * @return The response message to send to the client
+     */
+    private String handleShake() {
         // Implementation will go here
         return "";
     }
@@ -133,10 +170,25 @@ public class ClientHandler implements Runnable {
     /**
      * Handles the CLEAR command to remove all notes and pins.
      * 
-     * @param params The parameters for the CLEAR command
+     * RFC Section 7.6: CLEAR removes all notes and all pins.
+     * The operation MUST be atomic.
+     * 
      * @return The response message to send to the client
      */
-    private String handleClear(String params) {
+    private String handleClear() {
+        // Implementation will go here
+        return "";
+    }
+    
+    /**
+     * Handles the DISCONNECT command to close the connection.
+     * 
+     * RFC Section 7.7: DISCONNECT ends the client's connection.
+     * The server may send OK before closing, or close immediately.
+     * 
+     * @return The response message (OK) or null if closing immediately
+     */
+    private String handleDisconnect() {
         // Implementation will go here
         return "";
     }

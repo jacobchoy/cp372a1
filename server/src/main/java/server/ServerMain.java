@@ -12,20 +12,28 @@ import java.net.Socket;
  * 
  * The server maintains a single BulletinBoard instance that is shared among all client handlers.
  * 
+ * RFC Section 2.2: Server startup format:
+ * java BBoard <port> <board_width> <board_height> <note_width> <note_height> <colour1> ... <colourN>
+ * 
  * @author Team Members
  * @version 1.0
  */
 public class ServerMain {
-    private static final int DEFAULT_PORT = 8080;
     private static BulletinBoard bulletinBoard;
+    private static java.util.List<String> validColours;
     
     /**
      * Main entry point for the server application.
      * 
-     * Accepts an optional port number as a command-line argument.
-     * If no port is provided, uses the default port (8080).
+     * RFC Section 2.2: Command-line arguments:
+     * - args[0]: port number
+     * - args[1]: board_width
+     * - args[2]: board_height
+     * - args[3]: note_width
+     * - args[4]: note_height
+     * - args[5...]: valid colours (one or more)
      * 
-     * @param args Command-line arguments. args[0] may contain the port number.
+     * @param args Command-line arguments as specified in RFC Section 2.2
      */
     public static void main(String[] args) {
         // Implementation will go here
@@ -38,5 +46,14 @@ public class ServerMain {
      */
     public static BulletinBoard getBulletinBoard() {
         return bulletinBoard;
+    }
+    
+    /**
+     * Gets the list of valid colours for notes.
+     * 
+     * @return The list of valid colour names
+     */
+    public static java.util.List<String> getValidColours() {
+        return validColours;
     }
 }

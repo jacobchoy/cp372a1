@@ -82,27 +82,97 @@ public class BulletinBoard {
     }
     
     /**
-     * Adds a pin to the bulletin board.
+     * Adds a pin to the bulletin board at the specified coordinates.
      * 
-     * Validates that the pin coordinate lies within an existing note.
+     * RFC Section 7.3: PIN x y places a pin at (x, y).
+     * All notes covering that coordinate become pinned.
      * 
-     * @param pin The pin to add
-     * @return true if the pin was successfully added, false otherwise
+     * @param x The x-coordinate where to place the pin
+     * @param y The y-coordinate where to place the pin
+     * @return true if the pin was successfully added (coordinate is inside at least one note), false otherwise
      */
-    public boolean addPin(Pin pin) {
+    public boolean addPin(int x, int y) {
         // Implementation will go here
         return false;
     }
     
     /**
-     * Removes a pin from the bulletin board by its ID.
+     * Removes a pin from the bulletin board at the specified coordinates.
      * 
-     * @param pinId The unique identifier of the pin to remove
-     * @return true if the pin was found and removed, false otherwise
+     * RFC Section 7.4: UNPIN x y removes one pin at (x, y).
+     * 
+     * @param x The x-coordinate of the pin to remove
+     * @param y The y-coordinate of the pin to remove
+     * @return true if a pin was found and removed at that coordinate, false otherwise
      */
-    public boolean removePin(String pinId) {
+    public boolean removePin(int x, int y) {
         // Implementation will go here
         return false;
+    }
+    
+    /**
+     * Removes all unpinned notes from the board.
+     * 
+     * RFC Section 7.5: SHAKE removes all unpinned notes.
+     * The operation MUST be atomic.
+     * 
+     * @return The number of notes removed
+     */
+    public int shake() {
+        // Implementation will go here
+        return 0;
+    }
+    
+    /**
+     * Gets all notes that contain the specified coordinate.
+     * 
+     * RFC Section 7.2.2: GET contains=x y returns notes covering that coordinate.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return A list of notes that contain the coordinate
+     */
+    public List<Note> getNotesContaining(int x, int y) {
+        // Implementation will go here
+        return null;
+    }
+    
+    /**
+     * Gets all notes with the specified colour.
+     * 
+     * RFC Section 7.2.2: GET colour=<colour> returns notes with that colour.
+     * 
+     * @param colour The colour to filter by
+     * @return A list of notes with the specified colour
+     */
+    public List<Note> getNotesByColour(String colour) {
+        // Implementation will go here
+        return null;
+    }
+    
+    /**
+     * Gets all notes whose content contains the specified substring.
+     * 
+     * RFC Section 7.2.2: GET refersTo=<substring> returns notes containing the substring.
+     * 
+     * @param substring The substring to search for
+     * @return A list of notes containing the substring
+     */
+    public List<Note> getNotesByContent(String substring) {
+        // Implementation will go here
+        return null;
+    }
+    
+    /**
+     * Gets all pins at the specified coordinate.
+     * 
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @return A list of pins at that coordinate (may be empty)
+     */
+    public List<Pin> getPinsAt(int x, int y) {
+        // Implementation will go here
+        return null;
     }
     
     /**

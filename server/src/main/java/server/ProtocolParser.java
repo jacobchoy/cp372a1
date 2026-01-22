@@ -50,25 +50,38 @@ public class ProtocolParser {
     }
     
     /**
-     * Parses a QUERY command and extracts query parameters.
+     * Parses a GET command and determines if it's GET PINS or GET with filters.
      * 
-     * Expected format: QUERY [noteId] or QUERY (for all notes)
+     * RFC Section 7.2: GET PINS or GET [filters]
      * 
-     * @param params The parameter string from the QUERY command
-     * @return The note ID to query, or null if querying all notes
+     * @param params The parameter string from the GET command
+     * @return "PINS" if GET PINS, or the filter string otherwise
      */
-    public String parseQueryCommand(String params) {
+    public String parseGetCommand(String params) {
         // Implementation will go here
         return null;
     }
     
     /**
-     * Parses a PIN command and extracts pin information.
+     * Parses GET filter criteria.
      * 
-     * Expected format: PIN noteId x y
+     * RFC Section 7.2.2: Filters are colour=<colour>, contains=<x> <y>, refersTo=<substring>
+     * 
+     * @param params The filter parameter string
+     * @return A map or object containing parsed filter criteria, or null if invalid
+     */
+    public java.util.Map<String, String> parseGetFilters(String params) {
+        // Implementation will go here
+        return null;
+    }
+    
+    /**
+     * Parses a PIN command and extracts coordinates.
+     * 
+     * RFC Section 7.3: Expected format: PIN x y
      * 
      * @param params The parameter string from the PIN command
-     * @return An array containing [noteId, x, y] or null if invalid
+     * @return An array containing [x, y] as strings, or null if invalid
      */
     public String[] parsePinCommand(String params) {
         // Implementation will go here
@@ -76,27 +89,14 @@ public class ProtocolParser {
     }
     
     /**
-     * Parses an UNPIN command and extracts pin information.
+     * Parses an UNPIN command and extracts coordinates.
      * 
-     * Expected format: UNPIN pinId
+     * RFC Section 7.4: Expected format: UNPIN x y
      * 
      * @param params The parameter string from the UNPIN command
-     * @return The pin ID to unpin, or null if invalid
+     * @return An array containing [x, y] as strings, or null if invalid
      */
-    public String parseUnpinCommand(String params) {
-        // Implementation will go here
-        return null;
-    }
-    
-    /**
-     * Parses a DELETE command and extracts the note ID.
-     * 
-     * Expected format: DELETE noteId
-     * 
-     * @param params The parameter string from the DELETE command
-     * @return The note ID to delete, or null if invalid
-     */
-    public String parseDeleteCommand(String params) {
+    public String[] parseUnpinCommand(String params) {
         // Implementation will go here
         return null;
     }
