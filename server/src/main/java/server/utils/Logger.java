@@ -1,3 +1,4 @@
+// Logger class
 package server.utils;
 
 import java.io.FileWriter;
@@ -18,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 public class Logger {
     private static PrintWriter logFile;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    
+
     /**
      * Initializes the logger with an optional log file.
      * 
@@ -27,7 +28,7 @@ public class Logger {
     public static void initialize(String logFilePath) {
         // Implementation will go here
     }
-    
+
     /**
      * Logs an informational message.
      * 
@@ -36,7 +37,7 @@ public class Logger {
     public static void info(String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Logs a warning message.
      * 
@@ -45,7 +46,7 @@ public class Logger {
     public static void warning(String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Logs an error message.
      * 
@@ -54,17 +55,17 @@ public class Logger {
     public static void error(String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Logs a message with a specified level.
      * 
-     * @param level The log level (INFO, WARNING, ERROR)
+     * @param level   The log level (INFO, WARNING, ERROR)
      * @param message The message to log
      */
     private static void log(String level, String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Gets the current timestamp as a formatted string.
      * 
@@ -74,7 +75,7 @@ public class Logger {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Closes the log file if it was opened.
      */
