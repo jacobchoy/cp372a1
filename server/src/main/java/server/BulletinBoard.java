@@ -9,9 +9,11 @@ import java.util.List;
  * synchronized access methods to ensure thread safety when multiple clients
  * access the board concurrently.
  * 
- * RFC Section 4.2: Board has fixed dimensions; notes MUST lie completely within boundaries;
+ * RFC Section 4.2: Board has fixed dimensions; notes MUST lie completely within
+ * boundaries;
  * notes MAY partially overlap but MUST NOT completely overlap (Section 3).
- * RFC Section 10.2: Shared data protection; modifications must prevent data races.
+ * RFC Section 10.2: Shared data protection; modifications must prevent data
+ * races.
  *
  * @author Jacob Choy
  * @version 1.0
@@ -21,7 +23,7 @@ public class BulletinBoard {
     private final int boardHeight;
     private final int noteWidth;
     private final int noteHeight;
-    
+
     /**
      * Constructs a new BulletinBoard with specified dimensions.
      * 
@@ -31,19 +33,20 @@ public class BulletinBoard {
      * These dimensions are stored in the final fields and remain constant
      * for the lifetime of the server (RFC Section 4.2).
      * 
-     * @param boardWidth The width of the bulletin board (from command-line args[1])
-     * @param boardHeight The height of the bulletin board (from command-line args[2])
-     * @param noteWidth The fixed width of all notes (from command-line args[3])
-     * @param noteHeight The fixed height of all notes (from command-line args[4])
+     * @param boardWidth  The width of the bulletin board (from command-line
+     *                    args[1])
+     * @param boardHeight The height of the bulletin board (from command-line
+     *                    args[2])
+     * @param noteWidth   The fixed width of all notes (from command-line args[3])
+     * @param noteHeight  The fixed height of all notes (from command-line args[4])
      */
     public BulletinBoard(int boardWidth, int boardHeight, int noteWidth, int noteHeight) {
-        // TODO: Store the dimensions in the final fields
-        // this.boardWidth = boardWidth;
-        // this.boardHeight = boardHeight;
-        // this.noteWidth = noteWidth;
-        // this.noteHeight = noteHeight;
+        this.boardWidth = boardWidth;
+        this.boardHeight = boardHeight;
+        this.noteWidth = noteWidth;
+        this.noteHeight = noteHeight;
     }
-    
+
     /**
      * Adds a note to the bulletin board.
      * 
@@ -54,10 +57,19 @@ public class BulletinBoard {
      * @return true if the note was successfully added, false otherwise
      */
     public boolean addNote(Note note) {
-        // Implementation will go here
-        return false;
+        // Out of bounds check
+        if (!isValidNotePosition(note.getX(), note.getY())) {
+            return false;
+        }
+        // Overlap check
+        for (Note existingNote : getNotes()) {
+            if (notesCompletelyOverlap(note, existingNote)) {
+                return false;
+            }
+        }
+        return true;
     }
-    
+
     /**
      * Removes a note from the bulletin board by its ID.
      * 
@@ -67,10 +79,17 @@ public class BulletinBoard {
      * @return true if the note was found and removed, false otherwise
      */
     public boolean removeNote(String noteId) {
-        // Implementation will go here
+        if (noteId != null) {
+            for (Note note : getNotes()) {
+                if (note.getId().equals(noteId)) {
+                    note.remove(note);
+                    return true;
+                }
+            }
+        }
         return false;
     }
-    
+
     /**
      * Retrieves all notes currently on the bulletin board.
      * 
@@ -80,7 +99,7 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Retrieves a specific note by its ID.
      * 
@@ -91,7 +110,7 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Adds a pin to the bulletin board at the specified coordinates.
      * 
@@ -100,13 +119,14 @@ public class BulletinBoard {
      * 
      * @param x The x-coordinate where to place the pin
      * @param y The y-coordinate where to place the pin
-     * @return true if the pin was successfully added (coordinate is inside at least one note), false otherwise
+     * @return true if the pin was successfully added (coordinate is inside at least
+     *         one note), false otherwise
      */
     public boolean addPin(int x, int y) {
         // Implementation will go here
         return false;
     }
-    
+
     /**
      * Removes a pin from the bulletin board at the specified coordinates.
      * 
@@ -114,13 +134,14 @@ public class BulletinBoard {
      * 
      * @param x The x-coordinate of the pin to remove
      * @param y The y-coordinate of the pin to remove
-     * @return true if a pin was found and removed at that coordinate, false otherwise
+     * @return true if a pin was found and removed at that coordinate, false
+     *         otherwise
      */
     public boolean removePin(int x, int y) {
         // Implementation will go here
         return false;
     }
-    
+
     /**
      * Removes all unpinned notes from the board.
      * 
@@ -133,7 +154,7 @@ public class BulletinBoard {
         // Implementation will go here
         return 0;
     }
-    
+
     /**
      * Gets all notes that contain the specified coordinate.
      * 
@@ -147,7 +168,7 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Gets all notes with the specified colour.
      *
@@ -160,11 +181,12 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Gets all notes whose content contains the specified substring.
      * 
-     * RFC Section 7.2.2: GET refersTo=<substring> returns notes containing the substring.
+     * RFC Section 7.2.2: GET refersTo=<substring> returns notes containing the
+     * substring.
      * 
      * @param substring The substring to search for
      * @return A list of notes containing the substring
@@ -173,7 +195,7 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Gets all pins at the specified coordinate.
      * 
@@ -185,11 +207,12 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Removes all notes and all pins from the board.
      *
-     * RFC Section 7.6: CLEAR removes all notes and all pins. The operation MUST be atomic (Section 10.3).
+     * RFC Section 7.6: CLEAR removes all notes and all pins. The operation MUST be
+     * atomic (Section 10.3).
      */
     public void clear() {
         // Implementation will go here
@@ -206,7 +229,8 @@ public class BulletinBoard {
     }
 
     /**
-     * Retrieves a specific pin by its ID (internal use; protocol identifies pins by coordinates).
+     * Retrieves a specific pin by its ID (internal use; protocol identifies pins by
+     * coordinates).
      * 
      * @param pinId The unique identifier of the pin
      * @return The pin with the given ID, or null if not found
@@ -215,7 +239,7 @@ public class BulletinBoard {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Gets the width of the bulletin board.
      * 
@@ -224,7 +248,7 @@ public class BulletinBoard {
     public int getBoardWidth() {
         return boardWidth;
     }
-    
+
     /**
      * Gets the height of the bulletin board.
      * 
@@ -233,7 +257,7 @@ public class BulletinBoard {
     public int getBoardHeight() {
         return boardHeight;
     }
-    
+
     /**
      * Gets the fixed width of notes.
      * 
@@ -242,7 +266,7 @@ public class BulletinBoard {
     public int getNoteWidth() {
         return noteWidth;
     }
-    
+
     /**
      * Gets the fixed height of notes.
      * 
@@ -251,7 +275,7 @@ public class BulletinBoard {
     public int getNoteHeight() {
         return noteHeight;
     }
-    
+
     /**
      * Validates if a note's position and dimensions are within board boundaries.
      *
@@ -262,10 +286,9 @@ public class BulletinBoard {
      * @return true if the note lies completely within the board, false otherwise
      */
     private boolean isValidNotePosition(int x, int y) {
-        // Implementation will go here
-        return false;
+        return x >= 0 && y >= 0 && x + noteWidth <= boardWidth && y + noteHeight <= boardHeight;
     }
-    
+
     /**
      * Checks if two notes completely overlap (occupy the exact same region).
      *
@@ -276,14 +299,14 @@ public class BulletinBoard {
      * @return true if the notes completely overlap, false otherwise
      */
     private boolean notesCompletelyOverlap(Note note1, Note note2) {
-        // Implementation will go here
-        return false;
+        return note1.getX() == note2.getX() && note1.getY() == note2.getY() && note1.getId().equals(note2.getId());
     }
-    
+
     /**
      * Checks if a pin coordinate lies within a note's boundaries.
      *
-     * RFC Section 4.4: A pin MAY be placed only at a coordinate inside at least one existing note.
+     * RFC Section 4.4: A pin MAY be placed only at a coordinate inside at least one
+     * existing note.
      *
      * @param pinX The x-coordinate of the pin
      * @param pinY The y-coordinate of the pin
@@ -291,7 +314,7 @@ public class BulletinBoard {
      * @return true if the pin is inside the note, false otherwise
      */
     private boolean isPinInsideNote(int pinX, int pinY, Note note) {
-        // Implementation will go here
-        return false;
+        return pinX >= note.getX() && pinX < note.getX() + noteWidth && pinY >= note.getY()
+                && pinY < note.getY() + noteHeight;
     }
 }
