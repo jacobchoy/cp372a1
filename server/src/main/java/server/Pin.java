@@ -27,7 +27,9 @@ public class Pin {
      * @param y The y-coordinate of the pin
      */
     public Pin(String id, int x, int y) {
-        // Implementation will go here
+        this.id = id;
+        this.x = x;
+        this.y = y;
     }
     
     /**
@@ -69,8 +71,7 @@ public class Pin {
      * @return true if this pin is at the specified coordinates
      */
     public boolean isAt(int x, int y) {
-        // Implementation will go here
-        return false;
+        return this.x == x && this.y == y;
     }
     
     /**
@@ -80,7 +81,6 @@ public class Pin {
      */
     @Override
     public String toString() {
-        // Implementation will go here
-        return "";
+        return String.format("ID: %s, Position: (%d, %d)", id, x, y);
     }
 }
