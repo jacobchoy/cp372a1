@@ -192,6 +192,7 @@ public class ClientHandler implements Runnable {
             boolean success = bulletinBoard.addNote(note);
 
             if (success) {
+                idGen++;
                 return Protocol.RESP_OK;
             } else {
                 return Protocol.RESP_ERROR + " " + Protocol.ERR_COMPLETE_OVERLAP + " Note overlaps completely";
@@ -241,14 +242,10 @@ public class ClientHandler implements Runnable {
             Pin p = pins.get(i);
             sb.append(p.getX()).append(" ").append(p.getY());
             if (i < pins.size() - 1) {
-                sb.append(Protocol.LIST_SEPARATOR); // using delimiter from protocol
+                sb.append(Protocol.LIST_SEPARATOR);
             }
         }
-        // RFC says: GET PINS response? Protocol usually implies returning the list
-        // Looking at Protocol.java, there isn't a specific header for PINS response
-        // except maybe just the data?
-        // Let's assume just the data string.
-        return sb.toString();
+        return sb.length() > 0 ? Protocol.RESP_OK + " " + sb.toString() : Protocol.RESP_OK;
     }
 
     /**
@@ -313,7 +310,7 @@ public class ClientHandler implements Runnable {
             }
         }
 
-        // Format response: x y colour message;...
+        // Format response: OK x y colour message;... or OK if no matches (RFC 7.2.2)
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < result.size(); i++) {
             Note n = result.get(i);
@@ -323,7 +320,7 @@ public class ClientHandler implements Runnable {
                 sb.append(Protocol.LIST_SEPARATOR);
             }
         }
-        return sb.toString();
+        return sb.length() > 0 ? Protocol.RESP_OK + " " + sb.toString() : Protocol.RESP_OK;
     }
 
     /**
