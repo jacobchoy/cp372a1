@@ -3,6 +3,9 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Main server class for the Bulletin Board System.
@@ -41,21 +44,30 @@ public class ServerMain {
      * @param args Command-line arguments as specified in RFC Section 2.2
      */
     public static void main(String[] args) {
-        // TODO: Parse command-line arguments
-        // - Parse port from args[0]
-        // - Parse boardWidth from args[1]
-        // - Parse boardHeight from args[2]
-        // - Parse noteWidth from args[3]
-        // - Parse noteHeight from args[4]
-        // - Parse colours from args[5...]
-        
-        // TODO: Create BulletinBoard with parsed dimensions
-        // bulletinBoard = new BulletinBoard(boardWidth, boardHeight, noteWidth, noteHeight);
-        
-        // TODO: Store valid colours list
-        // validColours = ... (from args[5...])
-        
-        // TODO: Start server socket and accept connections
+        if (args == null || args.length < 6) {
+            System.err.println("Usage: java BBoard <port> <board_width> <board_height> <note_width> <note_height> <colour1> ... <colourN>");
+            System.exit(1);
+        }
+        int port = Integer.parseInt(args[0]);
+        int boardWidth = Integer.parseInt(args[1]);
+        int boardHeight = Integer.parseInt(args[2]);
+        int noteWidth = Integer.parseInt(args[3]);
+        int noteHeight = Integer.parseInt(args[4]);
+        validColours = new ArrayList<>(Arrays.asList(args).subList(5, args.length));
+
+        bulletinBoard = new BulletinBoard(boardWidth, boardHeight, noteWidth, noteHeight);
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started on port " + port);
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                ClientHandler clientHandler = new ClientHandler(clientSocket, bulletinBoard, validColours);
+                new Thread(clientHandler).start();
+            }
+        } catch (IOException e) {
+            System.err.println("Error starting server: " + e.getMessage());
+            System.exit(1);
+        }
     }
     
     /**
