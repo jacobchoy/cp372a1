@@ -26,10 +26,12 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildPostCommand(int x, int y, String color, String message) {
-        // Implementation will go here
-        return "";
+        // RFC 7.1: POST x y colour message... (fields separated by space; message is rest of line)
+        return Protocol.CMD_POST + Protocol.DELIMITER + x + Protocol.DELIMITER + y
+                + Protocol.DELIMITER + color + Protocol.DELIMITER
+                + (message != null ? message : "") + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs a GET PINS command message.
      * 
@@ -38,8 +40,7 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildGetPinsCommand() {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_GET + Protocol.DELIMITER + Protocol.GET_PINS + Protocol.LINE_END;
     }
     
     /**
@@ -55,8 +56,18 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildGetCommand(String colour, Integer containsX, Integer containsY, String refersTo) {
-        // Implementation will go here
-        return "";
+        StringBuilder sb = new StringBuilder(Protocol.CMD_GET);
+        if (colour != null && !colour.isEmpty()) {
+            sb.append(Protocol.DELIMITER).append(Protocol.FILTER_COLOR).append(colour);
+        }
+        if (containsX != null && containsY != null) {
+            sb.append(Protocol.DELIMITER).append(Protocol.FILTER_CONTAINS).append(containsX).append(Protocol.DELIMITER).append(containsY);
+        }
+        if (refersTo != null && !refersTo.isEmpty()) {
+            sb.append(Protocol.DELIMITER).append(Protocol.FILTER_REFERS_TO).append(refersTo);
+        }
+        sb.append(Protocol.LINE_END);
+        return sb.toString();
     }
     
     /**
@@ -69,10 +80,9 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildPinCommand(int x, int y) {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_PIN + Protocol.DELIMITER + x + Protocol.DELIMITER + y + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs an UNPIN command message.
      * 
@@ -83,10 +93,9 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildUnpinCommand(int x, int y) {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_UNPIN + Protocol.DELIMITER + x + Protocol.DELIMITER + y + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs a SHAKE command message.
      * 
@@ -95,10 +104,9 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildShakeCommand() {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_SHAKE + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs a DISCONNECT command message.
      * 
@@ -107,10 +115,9 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildDisconnectCommand() {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_DISCONNECT + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs a CLEAR command message.
      *
@@ -119,8 +126,7 @@ public class Message {
      * @return The formatted command string
      */
     public static String buildClearCommand() {
-        // Implementation will go here
-        return "";
+        return Protocol.CMD_CLEAR + Protocol.LINE_END;
     }
     
     /**
@@ -132,10 +138,12 @@ public class Message {
      * @return The formatted response string
      */
     public static String buildOkResponse(String info) {
-        // Implementation will go here
-        return "";
+        if (info == null || info.isEmpty()) {
+            return Protocol.RESP_OK + Protocol.LINE_END;
+        }
+        return Protocol.RESP_OK + Protocol.DELIMITER + info + Protocol.LINE_END;
     }
-    
+
     /**
      * Constructs an ERROR response message.
      * 
@@ -146,8 +154,8 @@ public class Message {
      * @return The formatted response string
      */
     public static String buildErrorResponse(String errorCode, String message) {
-        // Implementation will go here
-        return "";
+        return Protocol.RESP_ERROR + Protocol.DELIMITER + errorCode + Protocol.DELIMITER
+                + (message != null ? message : "") + Protocol.LINE_END;
     }
     
     /**
@@ -164,8 +172,19 @@ public class Message {
      * @return The formatted handshake response string
      */
     public static String buildHandshakeResponse(int boardWidth, int boardHeight, int noteWidth, int noteHeight, java.util.List<String> colours) {
-        // Implementation will go here
-        return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(Protocol.RESP_OK).append(Protocol.DELIMITER).append(Protocol.RESP_BOARD)
+                .append(Protocol.DELIMITER).append(boardWidth).append(Protocol.DELIMITER).append(boardHeight)
+                .append(Protocol.DELIMITER).append(Protocol.RESP_NOTE)
+                .append(Protocol.DELIMITER).append(noteWidth).append(Protocol.DELIMITER).append(noteHeight)
+                .append(Protocol.DELIMITER).append(Protocol.RESP_COLOURS);
+        if (colours != null) {
+            for (String c : colours) {
+                sb.append(Protocol.DELIMITER).append(c);
+            }
+        }
+        sb.append(Protocol.LINE_END);
+        return sb.toString();
     }
     
     /**
@@ -177,8 +196,28 @@ public class Message {
      * @return A list of note data arrays, each containing [x, y, colour, content]
      */
     public static java.util.List<String[]> parseNoteList(String response) {
-        // Implementation will go here
-        return null;
+        java.util.List<String[]> list = new java.util.ArrayList<>();
+        if (response == null || response.trim().isEmpty()) {
+            return list;
+        }
+        String[] segments = response.split(Protocol.LIST_SEPARATOR);
+        for (String segment : segments) {
+            segment = segment.trim();
+            if (segment.isEmpty()) continue;
+            // Format: x y colour content (content may contain spaces)
+            int endOfX = segment.indexOf(Protocol.DELIMITER);
+            if (endOfX < 0) continue;
+            int endOfY = segment.indexOf(Protocol.DELIMITER, endOfX + 1);
+            if (endOfY < 0) continue;
+            int endOfColour = segment.indexOf(Protocol.DELIMITER, endOfY + 1);
+            if (endOfColour < 0) continue;
+            String x = segment.substring(0, endOfX).trim();
+            String y = segment.substring(endOfX + 1, endOfY).trim();
+            String colour = segment.substring(endOfY + 1, endOfColour).trim();
+            String content = segment.substring(endOfColour + 1).trim();
+            list.add(new String[] { x, y, colour, content });
+        }
+        return list;
     }
     
     /**
@@ -190,8 +229,20 @@ public class Message {
      * @return A list of pin coordinate arrays, each containing [x, y]
      */
     public static java.util.List<String[]> parsePinList(String response) {
-        // Implementation will go here
-        return null;
+        java.util.List<String[]> list = new java.util.ArrayList<>();
+        if (response == null || response.trim().isEmpty()) {
+            return list;
+        }
+        String[] segments = response.split(Protocol.LIST_SEPARATOR);
+        for (String segment : segments) {
+            segment = segment.trim();
+            if (segment.isEmpty()) continue;
+            String[] parts = segment.split(Protocol.DELIMITER);
+            if (parts.length >= 2) {
+                list.add(new String[] { parts[0].trim(), parts[1].trim() });
+            }
+        }
+        return list;
     }
     
     /**
@@ -206,10 +257,10 @@ public class Message {
      * @return The formatted note string
      */
     public static String formatNote(int x, int y, String colour, String content) {
-        // Implementation will go here
-        return "";
+        return x + Protocol.DELIMITER + y + Protocol.DELIMITER + colour + Protocol.DELIMITER
+                + (content != null ? content : "");
     }
-    
+
     /**
      * Formats a pin for response output.
      * 
@@ -220,7 +271,6 @@ public class Message {
      * @return The formatted pin string
      */
     public static String formatPin(int x, int y) {
-        // Implementation will go here
-        return "";
+        return x + Protocol.DELIMITER + y;
     }
 }
