@@ -10,15 +10,20 @@ import java.util.List;
 /**
  * Main server class for the Bulletin Board System.
  * 
- * This class initializes and starts the TCP server that listens for client connections.
- * Upon accepting a connection, it spawns a new ClientHandler thread to manage that client.
+ * This class initializes and starts the TCP server that listens for client
+ * connections.
+ * Upon accepting a connection, it spawns a new ClientHandler thread to manage
+ * that client.
  * 
- * The server maintains a single BulletinBoard instance that is shared among all client handlers.
+ * The server maintains a single BulletinBoard instance that is shared among all
+ * client handlers.
  * 
  * RFC Section 2.2: Server startup format:
- * java BBoard &lt;port&gt; &lt;board_width&gt; &lt;board_height&gt; &lt;note_width&gt; &lt;note_height&gt; &lt;colour1&gt; ... &lt;colourN&gt;
+ * java BBoard &lt;port&gt; &lt;board_width&gt; &lt;board_height&gt;
+ * &lt;note_width&gt; &lt;note_height&gt; &lt;colour1&gt; ... &lt;colourN&gt;
  *
- * RFC Section 10.1: One thread per client connection; all threads share the global board.
+ * RFC Section 10.1: One thread per client connection; all threads share the
+ * global board.
  *
  * @author Jacob Choy
  * @version 1.0
@@ -26,7 +31,7 @@ import java.util.List;
 public class ServerMain {
     private static BulletinBoard bulletinBoard;
     private static java.util.List<String> validColours;
-    
+
     /**
      * Main entry point for the server application.
      * 
@@ -45,7 +50,8 @@ public class ServerMain {
      */
     public static void main(String[] args) {
         if (args == null || args.length < 6) {
-            System.err.println("Usage: java BBoard <port> <board_width> <board_height> <note_width> <note_height> <colour1> ... <colourN>");
+            System.err.println(
+                    "Usage: java BBoard <port> <board_width> <board_height> <note_width> <note_height> <colour1> ... <colourN>");
             System.exit(1);
         }
         int port = Integer.parseInt(args[0]);
@@ -69,7 +75,7 @@ public class ServerMain {
             System.exit(1);
         }
     }
-    
+
     /**
      * Gets the shared BulletinBoard instance.
      * 
@@ -78,7 +84,7 @@ public class ServerMain {
     public static BulletinBoard getBulletinBoard() {
         return bulletinBoard;
     }
-    
+
     /**
      * Gets the list of valid colours for notes.
      * 

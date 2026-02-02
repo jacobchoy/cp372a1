@@ -36,16 +36,19 @@ public class ClientHandler implements Runnable {
     private PrintWriter out;
     private ProtocolParser parser;
     public int idGen;
+    private List<String> validColours;
 
     /**
      * Constructs a new ClientHandler for the given client socket.
      * 
      * @param clientSocket  The socket connected to the client
      * @param bulletinBoard The shared BulletinBoard instance
+     * @param validColours  The list of valid colours for notes
      */
-    public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard) {
+    public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard, List<String> validColours) {
         this.clientSocket = clientSocket;
         this.bulletinBoard = bulletinBoard;
+        this.validColours = validColours;
         this.parser = new ProtocolParser();
     }
 
@@ -92,7 +95,7 @@ public class ClientHandler implements Runnable {
         out.println(Protocol.RESP_OK + " " + Protocol.RESP_BOARD + " " + bulletinBoard.getBoardWidth() + " "
                 + bulletinBoard.getBoardHeight()
                 + " " + Protocol.RESP_NOTE + " " + bulletinBoard.getNoteWidth() + " " + bulletinBoard.getNoteHeight()
-                + " " + Protocol.RESP_COLOURS + " " + String.join(" ", ServerMain.getValidColours()));
+                + " " + Protocol.RESP_COLOURS + " " + String.join(" ", validColours));
         this.idGen = 0;
     }
 
@@ -169,7 +172,7 @@ public class ClientHandler implements Runnable {
 
             // Validate colour
             boolean validColour = false;
-            for (String c : ServerMain.getValidColours()) {
+            for (String c : validColours) {
                 if (c.equals(colour)) {
                     validColour = true;
                     break;
