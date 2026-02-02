@@ -106,8 +106,20 @@ public class ProtocolParser {
      * @return A map or object containing parsed filter criteria, or null if invalid
      */
     public java.util.Map<String, String> parseGetFilters(String params) {
-        // Implementation will go here
-        return null;
+        if (params == null) return null;
+        String trimmed = params.trim();
+        if (trimmed.isEmpty()) return null;
+        java.util.Map<String, String> filters = new java.util.HashMap<>();
+        String[] parts = trimmed.split(Protocol.DELIMITER);
+        for (String part : parts) {
+            part = part.trim();
+            if (part.isEmpty()) continue;
+            String[] keyValue = part.split("=", 2);
+            if (keyValue.length == 2) {
+                filters.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return filters; 
     }
     
     /**
@@ -119,8 +131,12 @@ public class ProtocolParser {
      * @return An array containing [x, y] as strings, or null if invalid
      */
     public String[] parsePinCommand(String params) {
-        // Implementation will go here
-        return null;
+        if (params == null) return null;
+        String trimmed = params.trim();
+        if (trimmed.isEmpty()) return null; 
+        String[] commandParts = trimmed.split(Protocol.DELIMITER);
+        if (commandParts.length != 2) return null;
+        return new String[] { commandParts[0], commandParts[1] };
     }
     
     /**
@@ -132,18 +148,31 @@ public class ProtocolParser {
      * @return An array containing [x, y] as strings, or null if invalid
      */
     public String[] parseUnpinCommand(String params) {
-        // Implementation will go here
-        return null;
+        if (params == null) return null:
+        String trimmed = params.trim();
+        if (trimmed.isEmpty()) return null;
+        String[] commandParts = trimmed.split(Protocol.DELIMITER);
+        if (commandParts.length != 2) return null;
+        return new String[] { commandParts[0], commandParts[1] };
     }
     
     /**
      * Validates that a command string is well-formed.
-     * 
+     *
      * @param command The command string to validate
      * @return true if the command is valid, false otherwise
      */
     public boolean isValidCommand(String command) {
-        // Implementation will go here
+        if (command == null) return false;
+        String trimmed = command.trim();
+        if (trimmed.isEmpty()) return false;
+        String[] validCommands = {
+            Protocol.CMD_POST, Protocol.CMD_GET, Protocol.CMD_PIN, Protocol.CMD_UNPIN,
+            Protocol.CMD_SHAKE, Protocol.CMD_CLEAR, Protocol.CMD_DISCONNECT
+        };
+        for (String cmd : validCommands) {
+            if (trimmed.startsWith(cmd)) return true;
+        }
         return false;
     }
     
