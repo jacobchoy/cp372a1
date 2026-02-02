@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +25,10 @@ public class BulletinBoard {
     private final int noteWidth;
     private final int noteHeight;
 
+    // List of all notes and pins on the board
+    private final List<Note> notes;
+    private final List<Pin> pins;
+
     /**
      * Constructs a new BulletinBoard with specified dimensions.
      * 
@@ -45,6 +50,8 @@ public class BulletinBoard {
         this.boardHeight = boardHeight;
         this.noteWidth = noteWidth;
         this.noteHeight = noteHeight;
+        this.notes = new ArrayList<>();
+        this.pins = new ArrayList<>();
     }
 
     /**
@@ -56,17 +63,18 @@ public class BulletinBoard {
      * @param note The note to add
      * @return true if the note was successfully added, false otherwise
      */
-    public boolean addNote(Note note) {
+    public synchronized boolean addNote(Note note) {
         // Out of bounds check
         if (!isValidNotePosition(note.getX(), note.getY())) {
             return false;
         }
         // Overlap check
-        for (Note existingNote : getNotes()) {
+        for (Note existingNote : notes) {
             if (notesCompletelyOverlap(note, existingNote)) {
                 return false;
             }
         }
+        notes.add(note);
         return true;
     }
 
@@ -78,11 +86,16 @@ public class BulletinBoard {
      * @param noteId The unique identifier of the note to remove
      * @return true if the note was found and removed, false otherwise
      */
-    public boolean removeNote(String noteId) {
+    public synchronized boolean removeNote(String noteId) {
         if (noteId != null) {
-            for (Note note : getNotes()) {
+            for (Note note : notes) {
                 if (note.getId().equals(noteId)) {
-                    note.remove(note);
+                    /*
+                     * if (isPinInsideNote(boardWidth, boardHeight, note)) {
+                     * pins.remove(note);
+                     * }
+                     */
+                    notes.remove(note);
                     return true;
                 }
             }
@@ -95,9 +108,8 @@ public class BulletinBoard {
      * 
      * @return A list of all notes (defensive copy for thread safety)
      */
-    public List<Note> getNotes() {
-        // Implementation will go here
-        return null;
+    public synchronized List<Note> getNotes() {
+        return new ArrayList<>(notes);
     }
 
     /**
@@ -107,7 +119,13 @@ public class BulletinBoard {
      * @return The note with the given ID, or null if not found
      */
     public Note getNote(String noteId) {
-        // Implementation will go here
+        if (noteId != null) {
+            for (Note note : getNotes()) {
+                if (note.getId().equals(noteId)) {
+                    return note;
+                }
+            }
+        }
         return null;
     }
 
@@ -122,8 +140,13 @@ public class BulletinBoard {
      * @return true if the pin was successfully added (coordinate is inside at least
      *         one note), false otherwise
      */
-    public boolean addPin(int x, int y) {
-        // Implementation will go here
+    public synchronized boolean addPin(int x, int y) {
+        for (Note note : notes) {
+            if (isPinInsideNote(x, y, note)) {
+                pins.add(new Pin(x, y));
+                return true;
+            }
+        }
         return false;
     }
 
@@ -137,8 +160,13 @@ public class BulletinBoard {
      * @return true if a pin was found and removed at that coordinate, false
      *         otherwise
      */
-    public boolean removePin(int x, int y) {
-        // Implementation will go here
+    public synchronized boolean removePin(int x, int y) {
+        for (Pin pin : pins) {
+            if (pin.getX() == x && pin.getY() == y) {
+                pins.remove(pin);
+                return true;
+            }
+        }
         return false;
     }
 
@@ -151,8 +179,21 @@ public class BulletinBoard {
      * @return The number of notes removed
      */
     public int shake() {
-        // Implementation will go here
-        return 0;
+        List<Note> toRemove = new ArrayList<>();
+        for (Note note : notes) {
+            boolean isPinned = false;
+            for (Pin pin : pins) {
+                if (isPinInsideNote(pin.getX(), pin.getY(), note)) {
+                    isPinned = true;
+                    break;
+                }
+            }
+            if (!isPinned) {
+                toRemove.add(note);
+            }
+        }
+        notes.removeAll(toRemove);
+        return toRemove.size();
     }
 
     /**
@@ -165,8 +206,13 @@ public class BulletinBoard {
      * @return A list of notes that contain the coordinate
      */
     public List<Note> getNotesContaining(int x, int y) {
-        // Implementation will go here
-        return null;
+        List<Note> result = new ArrayList<>();
+        for (Note note : notes) {
+            if (note.containsPoint(x, y, noteWidth, noteHeight)) {
+                result.add(note);
+            }
+        }
+        return result;
     }
 
     /**
@@ -177,9 +223,14 @@ public class BulletinBoard {
      * @param colour The colour to filter by
      * @return A list of notes with the specified colour
      */
-    public List<Note> getNotesByColour(String colour) {
-        // Implementation will go here
-        return null;
+    public synchronized List<Note> getNotesByColour(String colour) {
+        List<Note> result = new ArrayList<>();
+        for (Note note : notes) {
+            if (note.getColor().equals(colour)) {
+                result.add(note);
+            }
+        }
+        return result;
     }
 
     /**
@@ -191,9 +242,14 @@ public class BulletinBoard {
      * @param substring The substring to search for
      * @return A list of notes containing the substring
      */
-    public List<Note> getNotesByContent(String substring) {
-        // Implementation will go here
-        return null;
+    public synchronized List<Note> getNotesByContent(String substring) {
+        List<Note> result = new ArrayList<>();
+        for (Note note : notes) {
+            if (note.getMessage().contains(substring)) {
+                result.add(note);
+            }
+        }
+        return result;
     }
 
     /**
@@ -203,9 +259,14 @@ public class BulletinBoard {
      * @param y The y-coordinate
      * @return A list of pins at that coordinate (may be empty)
      */
-    public List<Pin> getPinsAt(int x, int y) {
-        // Implementation will go here
-        return null;
+    public synchronized List<Pin> getPinsAt(int x, int y) {
+        List<Pin> result = new ArrayList<>();
+        for (Pin pin : pins) {
+            if (pin.getX() == x && pin.getY() == y) {
+                result.add(pin);
+            }
+        }
+        return result;
     }
 
     /**
@@ -214,8 +275,9 @@ public class BulletinBoard {
      * RFC Section 7.6: CLEAR removes all notes and all pins. The operation MUST be
      * atomic (Section 10.3).
      */
-    public void clear() {
-        // Implementation will go here
+    public synchronized void clear() {
+        notes.clear();
+        pins.clear();
     }
 
     /**
@@ -223,9 +285,8 @@ public class BulletinBoard {
      *
      * @return A list of all pins (defensive copy for thread safety)
      */
-    public List<Pin> getPins() {
-        // Implementation will go here
-        return null;
+    public synchronized List<Pin> getPins() {
+        return new ArrayList<>(pins);
     }
 
     /**
@@ -235,8 +296,12 @@ public class BulletinBoard {
      * @param pinId The unique identifier of the pin
      * @return The pin with the given ID, or null if not found
      */
-    public Pin getPin(String pinId) {
-        // Implementation will go here
+    public synchronized Pin getPin(String pinId) {
+        for (Pin pin : pins) {
+            if (pin.getId().equals(pinId)) {
+                return pin;
+            }
+        }
         return null;
     }
 
@@ -245,7 +310,7 @@ public class BulletinBoard {
      * 
      * @return The board width
      */
-    public int getBoardWidth() {
+    public synchronized int getBoardWidth() {
         return boardWidth;
     }
 
@@ -254,7 +319,7 @@ public class BulletinBoard {
      * 
      * @return The board height
      */
-    public int getBoardHeight() {
+    public synchronized int getBoardHeight() {
         return boardHeight;
     }
 
@@ -263,7 +328,7 @@ public class BulletinBoard {
      * 
      * @return The note width
      */
-    public int getNoteWidth() {
+    public synchronized int getNoteWidth() {
         return noteWidth;
     }
 
@@ -272,7 +337,7 @@ public class BulletinBoard {
      * 
      * @return The note height
      */
-    public int getNoteHeight() {
+    public synchronized int getNoteHeight() {
         return noteHeight;
     }
 
@@ -285,7 +350,7 @@ public class BulletinBoard {
      * @param y The y-coordinate of the note's upper-left corner
      * @return true if the note lies completely within the board, false otherwise
      */
-    private boolean isValidNotePosition(int x, int y) {
+    private synchronized boolean isValidNotePosition(int x, int y) {
         return x >= 0 && y >= 0 && x + noteWidth <= boardWidth && y + noteHeight <= boardHeight;
     }
 
@@ -298,8 +363,8 @@ public class BulletinBoard {
      * @param note2 The second note
      * @return true if the notes completely overlap, false otherwise
      */
-    private boolean notesCompletelyOverlap(Note note1, Note note2) {
-        return note1.getX() == note2.getX() && note1.getY() == note2.getY() && note1.getId().equals(note2.getId());
+    private synchronized boolean notesCompletelyOverlap(Note note1, Note note2) {
+        return note1.getX() == note2.getX() && note1.getY() == note2.getY();
     }
 
     /**
@@ -313,7 +378,7 @@ public class BulletinBoard {
      * @param note The note to check against
      * @return true if the pin is inside the note, false otherwise
      */
-    private boolean isPinInsideNote(int pinX, int pinY, Note note) {
+    private synchronized boolean isPinInsideNote(int pinX, int pinY, Note note) {
         return pinX >= note.getX() && pinX < note.getX() + noteWidth && pinY >= note.getY()
                 && pinY < note.getY() + noteHeight;
     }
