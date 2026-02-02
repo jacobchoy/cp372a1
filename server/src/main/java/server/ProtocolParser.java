@@ -1,5 +1,7 @@
 package server;
 
+import shared.Protocol;
+
 /**
  * Parses and validates protocol messages from clients.
  * 
