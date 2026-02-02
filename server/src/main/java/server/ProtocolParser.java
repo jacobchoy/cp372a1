@@ -22,24 +22,14 @@ public class ProtocolParser {
      * @return The command type (POST, GET, PIN, UNPIN, SHAKE, CLEAR, DISCONNECT) or null if invalid
      */
     public String parseCommandType(String command) {
-        if (command.startsWith(Protocol.CMD_POST)) {
-            return "POST"; 
-            }
-            else if (command.startsWith(Protocol.CMD_GET)) {
-                return "GET";
-            } else if (command.startsWith(Protocol.CMD_PIN)) {
-                return "PIN";
-            } else if (command.startsWith(Protocol.CMD_UNPIN)) {
-                return "UNPIN";
-            } else if (command.startsWith(Protocol.CMD_SHAKE)) {
-                return "SHAKE";
-            } else if (command.startsWith(Protocol.CMD_CLEAR)) {
-                return "CLEAR";
-            } else if (command.startsWith(Protocol.CMD_DISCONNECT)) {
-                return "DISCONNECT";
-            }
-        }
-
+        if (command == null) return null;
+        if (command.startsWith(Protocol.CMD_POST)) return Protocol.CMD_POST;
+        if (command.startsWith(Protocol.CMD_GET)) return Protocol.CMD_GET;
+        if (command.startsWith(Protocol.CMD_PIN)) return Protocol.CMD_PIN;
+        if (command.startsWith(Protocol.CMD_UNPIN)) return Protocol.CMD_UNPIN;
+        if (command.startsWith(Protocol.CMD_SHAKE)) return Protocol.CMD_SHAKE;
+        if (command.startsWith(Protocol.CMD_CLEAR)) return Protocol.CMD_CLEAR;
+        if (command.startsWith(Protocol.CMD_DISCONNECT)) return Protocol.CMD_DISCONNECT;
         return null;
     }
     
@@ -65,6 +55,7 @@ public class ProtocolParser {
         } else if (command.startsWith(Protocol.CMD_DISCONNECT)) {
             return command.substring(Protocol.CMD_DISCONNECT.length()).trim();
         }
+        return "";
     }
     
     /**
@@ -148,7 +139,7 @@ public class ProtocolParser {
      * @return An array containing [x, y] as strings, or null if invalid
      */
     public String[] parseUnpinCommand(String params) {
-        if (params == null) return null:
+        if (params == null) return null;
         String trimmed = params.trim();
         if (trimmed.isEmpty()) return null;
         String[] commandParts = trimmed.split(Protocol.DELIMITER);
@@ -185,7 +176,6 @@ public class ProtocolParser {
      * @return A formatted ERROR response line
      */
     public String generateErrorMessage(String errorCode, String message) {
-        // Implementation will go here
-        return "";
+        return shared.Message.buildErrorResponse(errorCode, message != null ? message : "");
     }
 }

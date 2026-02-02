@@ -23,24 +23,20 @@ import java.net.Socket;
  * @version 1.0
  */
 public class ClientHandler implements Runnable {
-    private final Socket clientSocket;
-    private final BulletinBoard bulletinBoard;
-    private final java.util.List<String> validColours;
+    private Socket clientSocket;
+    private BulletinBoard bulletinBoard;
     private BufferedReader in;
     private PrintWriter out;
     private ProtocolParser parser;
-
+    
     /**
      * Constructs a new ClientHandler for the given client socket.
-     *
-     * @param clientSocket  The socket connected to the client
+     * 
+     * @param clientSocket The socket connected to the client
      * @param bulletinBoard The shared BulletinBoard instance
-     * @param validColours  The list of valid colours (for handshake)
      */
-    public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard, java.util.List<String> validColours) {
-        this.clientSocket = clientSocket;
-        this.bulletinBoard = bulletinBoard;
-        this.validColours = validColours != null ? validColours : new java.util.ArrayList<>();
+    public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard) {
+        // Implementation will go here
     }
     
     /**
