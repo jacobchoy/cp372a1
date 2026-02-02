@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import shared.Protocol;
 
 /**
  * Handles communication with a single client connection.
@@ -31,15 +35,18 @@ public class ClientHandler implements Runnable {
     private BufferedReader in;
     private PrintWriter out;
     private ProtocolParser parser;
-    
+    public int idGen;
+
     /**
      * Constructs a new ClientHandler for the given client socket.
      * 
-     * @param clientSocket The socket connected to the client
+     * @param clientSocket  The socket connected to the client
      * @param bulletinBoard The shared BulletinBoard instance
      */
     public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard) {
-        // Implementation will go here
+        this.clientSocket = clientSocket;
+        this.bulletinBoard = bulletinBoard;
+        this.parser = new ProtocolParser();
     }
 
     /**
@@ -52,19 +59,41 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-        // Implementation will go here
+        try {
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            // Auto-flush enabled for PrintWriter
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+            sendInitialMessage();
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                // If client just sends empty lines/whitespace?
+                if (line.trim().isEmpty())
+                    continue;
+                processCommand(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error handling client: " + e.getMessage());
+        } finally {
+            closeConnection();
+        }
     }
 
     /**
      * Sends the initial handshake message to the client.
      * 
-     * RFC Section 8.1: OK BOARD &lt;board_width&gt; &lt;board_height&gt; NOTE
-     * &lt;note_width&gt; &lt;note_height&gt; colourS &lt;colour1&gt; ...
-     * &lt;colourN&gt;
+     * RFC Section 8.1: OK BOARD <board_width> <board_height> NOTE
+     * <note_width> <note_height> colourS <colour1> ...
+     * <colourN>
      * Sent immediately upon accepting a new client connection (RFC Section 2.2).
      */
     private void sendInitialMessage() {
-        // Implementation will go here
+        out.println(Protocol.RESP_OK + " " + Protocol.RESP_BOARD + " " + bulletinBoard.getBoardWidth() + " "
+                + bulletinBoard.getBoardHeight()
+                + " " + Protocol.RESP_NOTE + " " + bulletinBoard.getNoteWidth() + " " + bulletinBoard.getNoteHeight()
+                + " " + Protocol.RESP_COLOURS + " " + String.join(" ", ServerMain.getValidColours()));
+        this.idGen = 0;
     }
 
     /**
@@ -76,7 +105,48 @@ public class ClientHandler implements Runnable {
      * @param command The command string received from the client
      */
     private void processCommand(String command) {
-        // Implementation will go here
+        if (!parser.isValidCommand(command)) {
+            out.println(Protocol.RESP_ERROR + " " + Protocol.ERR_UNKNOWN_COMMAND + " Unknown command");
+            return;
+        }
+
+        String commandType = parser.parseCommandType(command);
+        String params = parser.parseParameters(command);
+        String response = "";
+
+        try {
+            switch (commandType) {
+                case "POST":
+                    response = handlePostNote(params);
+                    break;
+                case "GET":
+                    response = handleGet(params);
+                    break;
+                case "PIN":
+                    response = handlePin(params);
+                    break;
+                case "UNPIN":
+                    response = handleUnpin(params);
+                    break;
+                case "SHAKE":
+                    response = handleShake();
+                    break;
+                case "CLEAR":
+                    response = handleClear();
+                    break;
+                case "DISCONNECT":
+                    response = handleDisconnect();
+                    break;
+                default:
+                    response = Protocol.RESP_ERROR + " " + Protocol.ERR_UNKNOWN_COMMAND + " Unknown command type";
+            }
+        } catch (Exception e) {
+            response = Protocol.RESP_ERROR + " " + Protocol.ERR_INTERNAL_ERROR + " " + e.getMessage();
+        }
+
+        if (response != null && !response.isEmpty()) {
+            out.println(response);
+        }
     }
 
     /**
@@ -86,22 +156,69 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handlePostNote(String params) {
-        // Implementation will go here
-        return "";
+        String[] parts = parser.parsePostCommand(params);
+        if (parts == null) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid POST format";
+        }
+
+        try {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            String colour = parts[2];
+            String message = parts[3];
+
+            // Validate colour
+            boolean validColour = false;
+            for (String c : ServerMain.getValidColours()) {
+                if (c.equals(colour)) {
+                    validColour = true;
+                    break;
+                }
+            }
+            if (!validColour) {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_COLOUR_NOT_SUPPORTED + " Colour not supported";
+            }
+
+            // Check bounds manually to distinguish from overlap error
+            if (x < 0 || y < 0 || x + bulletinBoard.getNoteWidth() > bulletinBoard.getBoardWidth() ||
+                    y + bulletinBoard.getNoteHeight() > bulletinBoard.getBoardHeight()) {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_OUT_OF_BOUNDS + " Note out of bounds";
+            }
+
+            Note note = new Note(String.valueOf(idGen), x, y, colour, message);
+            boolean success = bulletinBoard.addNote(note);
+
+            if (success) {
+                return Protocol.RESP_OK;
+            } else {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_COMPLETE_OVERLAP + " Note overlaps completely";
+            }
+
+        } catch (NumberFormatException e) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Coordinates must be integers";
+        }
     }
 
     /**
      * Handles the GET command to retrieve notes or pins.
      * 
-     * RFC Section 7.2: GET PINS or GET [color=&lt;colour&gt;] [contains=&lt;x&gt;
-     * &lt;y&gt;] [refersTo=&lt;substring&gt;]
+     * RFC Section 7.2: GET PINS or GET [color=<colour>] [contains=<x>
+     * <y>] [refersTo=<substring>]
      * 
      * @param params The parameters for the GET command
      * @return The response message to send to the client
      */
     private String handleGet(String params) {
-        // Implementation will go here
-        return "";
+        String parsed = parser.parseGetCommand(params);
+        if (parsed == null) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid GET format";
+        }
+
+        if (parsed.equals(Protocol.GET_PINS)) {
+            return handleGetPins();
+        } else {
+            return handleGetWithFilters(parsed);
+        }
     }
 
     /**
@@ -112,22 +229,98 @@ public class ClientHandler implements Runnable {
      * @return The response message with pin coordinates
      */
     private String handleGetPins() {
-        // Implementation will go here
-        return "";
+        List<Pin> pins = bulletinBoard.getPins();
+        StringBuilder sb = new StringBuilder();
+        // RFC says: coordinates. Format usually implies list of Pins
+        // Typically GET PINS returns "x y;x y" etc.
+        // Assuming format: x1 y1;x2 y2
+        for (int i = 0; i < pins.size(); i++) {
+            Pin p = pins.get(i);
+            sb.append(p.getX()).append(" ").append(p.getY());
+            if (i < pins.size() - 1) {
+                sb.append(Protocol.LIST_SEPARATOR); // using delimiter from protocol
+            }
+        }
+        // RFC says: GET PINS response? Protocol usually implies returning the list
+        // Looking at Protocol.java, there isn't a specific header for PINS response
+        // except maybe just the data?
+        // Let's assume just the data string.
+        return sb.toString();
     }
 
     /**
      * Handles GET with filter criteria.
      * 
-     * RFC Section 7.2.2: GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;]
-     * [refersTo=&lt;substring&gt;]; criteria combined with logical AND.
+     * RFC Section 7.2.2: GET [color=<colour>] [contains=<x> <y>]
+     * [refersTo=<substring>]; criteria combined with logical AND.
      * 
      * @param params The filter parameters
      * @return The response message with matching notes as "x y colour content;..."
      */
     private String handleGetWithFilters(String params) {
-        // Implementation will go here
-        return "";
+        Map<String, String> filters = parser.parseGetFilters(params);
+        if (filters == null) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid filter format";
+        }
+
+        List<Note> allNotes = bulletinBoard.getNotes();
+        List<Note> result = new ArrayList<>();
+
+        for (Note note : allNotes) {
+            boolean matches = true;
+
+            // Filter: color
+            if (filters.containsKey("color")) {
+                if (!note.getColor().equals(filters.get("color"))) {
+                    matches = false;
+                }
+            }
+
+            // Filter: refersTo
+            if (matches && filters.containsKey("refersTo")) {
+                if (!note.getMessage().contains(filters.get("refersTo"))) {
+                    matches = false;
+                }
+            }
+
+            // Filter: contains (x y)
+            if (matches && filters.containsKey("contains")) {
+                String val = filters.get("contains"); // "x y"
+                try {
+                    String[] coords = val.trim().split("\\s+");
+                    if (coords.length == 2) {
+                        int cx = Integer.parseInt(coords[0]);
+                        int cy = Integer.parseInt(coords[1]);
+                        if (!note.containsPoint(cx, cy, bulletinBoard.getNoteWidth(), bulletinBoard.getNoteHeight())) {
+                            matches = false;
+                        }
+                    } else {
+                        // Invalid contains format, ignore or fail?
+                        // parser might have validated it or passed raw string.
+                        // For now let's assume if it fails parsing we just say it doesn't match
+                        matches = false;
+                    }
+                } catch (NumberFormatException e) {
+                    matches = false;
+                }
+            }
+
+            if (matches) {
+                result.add(note);
+            }
+        }
+
+        // Format response: x y colour message;...
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < result.size(); i++) {
+            Note n = result.get(i);
+            sb.append(n.getX()).append(" ").append(n.getY()).append(" ")
+                    .append(n.getColor()).append(" ").append(n.getMessage());
+            if (i < result.size() - 1) {
+                sb.append(Protocol.LIST_SEPARATOR);
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -140,8 +333,24 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handlePin(String params) {
-        // Implementation will go here
-        return "";
+        String[] parts = parser.parsePinCommand(params);
+        if (parts == null) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid PIN format";
+        }
+
+        try {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+
+            boolean success = bulletinBoard.addPin(x, y);
+            if (success) {
+                return Protocol.RESP_OK;
+            } else {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_NO_NOTE_AT_COORDINATE + " No note at coordinate";
+            }
+        } catch (NumberFormatException e) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Coordinates must be integers";
+        }
     }
 
     /**
@@ -153,8 +362,24 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handleUnpin(String params) {
-        // Implementation will go here
-        return "";
+        String[] parts = parser.parseUnpinCommand(params);
+        if (parts == null) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid UNPIN format";
+        }
+
+        try {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+
+            boolean success = bulletinBoard.removePin(x, y);
+            if (success) {
+                return Protocol.RESP_OK;
+            } else {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_PIN_NOT_FOUND + " Pin not found";
+            }
+        } catch (NumberFormatException e) {
+            return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Coordinates must be integers";
+        }
     }
 
     /**
@@ -166,8 +391,8 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handleShake() {
-        // Implementation will go here
-        return "";
+        bulletinBoard.shake();
+        return Protocol.RESP_OK;
     }
 
     /**
@@ -179,8 +404,8 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handleClear() {
-        // Implementation will go here
-        return "";
+        bulletinBoard.clear();
+        return Protocol.RESP_OK;
     }
 
     /**
@@ -192,8 +417,7 @@ public class ClientHandler implements Runnable {
      * @return The response message (OK) or null if closing immediately
      */
     private String handleDisconnect() {
-        // Implementation will go here
-        return "";
+        return Protocol.RESP_OK;
     }
 
     /**
@@ -202,6 +426,16 @@ public class ClientHandler implements Runnable {
      * continue serving other clients.
      */
     private void closeConnection() {
-        // Implementation will go here
+        try {
+            if (in != null)
+                in.close();
+            if (out != null)
+                out.close();
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                clientSocket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing connection: " + e.getMessage());
+        }
     }
 }
