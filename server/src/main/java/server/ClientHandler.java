@@ -16,9 +16,10 @@ import java.net.Socket;
  * - Sending responses back to the client
  * - Handling connection errors and cleanup
  * 
- * This class implements Runnable to allow concurrent handling of multiple clients.
- * 
- * @author Team Members
+ * RFC Section 10.1: One thread per client connection; all threads share the global board.
+ * RFC Section 5.2: For each command (except DISCONNECT), server sends exactly one response line.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class ClientHandler implements Runnable {
@@ -54,10 +55,8 @@ public class ClientHandler implements Runnable {
     /**
      * Sends the initial handshake message to the client.
      * 
-     * RFC Section 8.1: Handshake format:
-     * OK BOARD <board_width> <board_height> NOTE <note_width> <note_height> colourS <colour1> <colour2> ... <colourN>
-     * 
-     * This message is sent immediately upon accepting a new client connection.
+     * RFC Section 8.1: OK BOARD &lt;board_width&gt; &lt;board_height&gt; NOTE &lt;note_width&gt; &lt;note_height&gt; colourS &lt;colour1&gt; ... &lt;colourN&gt;
+     * Sent immediately upon accepting a new client connection (RFC Section 2.2).
      */
     private void sendInitialMessage() {
         // Implementation will go here
@@ -89,9 +88,7 @@ public class ClientHandler implements Runnable {
     /**
      * Handles the GET command to retrieve notes or pins.
      * 
-     * RFC Section 7.2: GET has two forms:
-     * - GET PINS: Returns all pin coordinates
-     * - GET [filters]: Returns notes matching criteria (colour=, contains=, refersTo=)
+     * RFC Section 7.2: GET PINS or GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]
      * 
      * @param params The parameters for the GET command
      * @return The response message to send to the client
@@ -116,8 +113,7 @@ public class ClientHandler implements Runnable {
     /**
      * Handles GET with filter criteria.
      * 
-     * RFC Section 7.2.2: GET [colour=<colour>] [contains=<x> <y>] [refersTo=<substring>]
-     * All criteria are combined with logical AND.
+     * RFC Section 7.2.2: GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]; criteria combined with logical AND.
      * 
      * @param params The filter parameters
      * @return The response message with matching notes as "x y colour content;..."
@@ -182,9 +178,8 @@ public class ClientHandler implements Runnable {
     
     /**
      * Handles the DISCONNECT command to close the connection.
-     * 
-     * RFC Section 7.7: DISCONNECT ends the client's connection.
-     * The server may send OK before closing, or close immediately.
+     *
+     * RFC Section 7.7: Server may send OK before closing or close immediately; MUST clean up resources; MUST NOT crash on unexpected disconnect.
      * 
      * @return The response message (OK) or null if closing immediately
      */
@@ -195,6 +190,7 @@ public class ClientHandler implements Runnable {
     
     /**
      * Closes the client connection and cleans up resources.
+     * RFC Section 11: If client disconnects unexpectedly, server MUST clean up and continue serving other clients.
      */
     private void closeConnection() {
         // Implementation will go here

@@ -13,9 +13,11 @@ import java.net.Socket;
  * The server maintains a single BulletinBoard instance that is shared among all client handlers.
  * 
  * RFC Section 2.2: Server startup format:
- * java BBoard <port> <board_width> <board_height> <note_width> <note_height> <colour1> ... <colourN>
- * 
- * @author Team Members
+ * java BBoard &lt;port&gt; &lt;board_width&gt; &lt;board_height&gt; &lt;note_width&gt; &lt;note_height&gt; &lt;colour1&gt; ... &lt;colourN&gt;
+ *
+ * RFC Section 10.1: One thread per client connection; all threads share the global board.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class ServerMain {
@@ -33,10 +35,27 @@ public class ServerMain {
      * - args[4]: note_height
      * - args[5...]: valid colours (one or more)
      * 
+     * The board size is defined here by parsing command-line arguments and
+     * passing them to the BulletinBoard constructor.
+     * 
      * @param args Command-line arguments as specified in RFC Section 2.2
      */
     public static void main(String[] args) {
-        // Implementation will go here
+        // TODO: Parse command-line arguments
+        // - Parse port from args[0]
+        // - Parse boardWidth from args[1]
+        // - Parse boardHeight from args[2]
+        // - Parse noteWidth from args[3]
+        // - Parse noteHeight from args[4]
+        // - Parse colours from args[5...]
+        
+        // TODO: Create BulletinBoard with parsed dimensions
+        // bulletinBoard = new BulletinBoard(boardWidth, boardHeight, noteWidth, noteHeight);
+        
+        // TODO: Store valid colours list
+        // validColours = ... (from args[5...])
+        
+        // TODO: Start server socket and accept connections
     }
     
     /**

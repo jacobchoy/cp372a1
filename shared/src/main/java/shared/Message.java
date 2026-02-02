@@ -6,17 +6,18 @@ package shared;
  * This class provides utilities for constructing and parsing
  * protocol messages between client and server.
  * 
- * Messages follow a specific format defined in the RFC.
- * 
- * @author Team Members
+ * Messages follow the format in RFC Section 6. Each command/response is a single
+ * line of UTF-8 text terminated by newline (RFC Section 5.1).
+ *
+ * @author Jacob Choy, Jonathan Bilewicz
  * @version 1.0
  */
 public class Message {
-    
+
     /**
      * Constructs a POST command message.
-     * 
-     * Format: POST x y color message
+     *
+     * RFC Section 7.1: POST x y colour message... (message is rest of line; content MAY contain spaces)
      * 
      * @param x The x-coordinate of the note
      * @param y The y-coordinate of the note
@@ -43,9 +44,10 @@ public class Message {
     
     /**
      * Constructs a GET command with filter criteria.
-     * 
-     * RFC Section 7.2.2: Format: GET [colour=<colour>] [contains=<x> <y>] [refersTo=<substring>]
-     * 
+     *
+     * RFC Section 7.2.2: GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]
+     * Any combination of criteria; missing criteria imply no filtering. Combined with logical AND.
+     *
      * @param colour Optional colour filter (null if not filtering by colour)
      * @param containsX Optional x-coordinate for contains filter (null if not filtering)
      * @param containsY Optional y-coordinate for contains filter (null if not filtering)
@@ -111,9 +113,9 @@ public class Message {
     
     /**
      * Constructs a CLEAR command message.
-     * 
-     * Format: CLEAR
-     * 
+     *
+     * RFC Section 7.6: CLEAR - removes all notes and all pins (atomic).
+     *
      * @return The formatted command string
      */
     public static String buildClearCommand() {
@@ -122,11 +124,11 @@ public class Message {
     }
     
     /**
-     * Constructs an OK response message.
-     * 
-     * Format: OK [additional info]
-     * 
-     * @param info Additional information to include
+     * Constructs a success response message.
+     *
+     * RFC Section 8.1: OK or OK SP &lt;data&gt;
+     *
+     * @param info Additional data (e.g. note list, pin list) or empty for plain OK
      * @return The formatted response string
      */
     public static String buildOkResponse(String info) {
@@ -140,7 +142,7 @@ public class Message {
      * RFC Section 8.2: Format: ERROR <ERROR_CODE> <human-readable message>
      * 
      * @param errorCode The error code (e.g., "OUT_OF_BOUNDS", "INVALID_FORMAT")
-     * @param message The human-readable error message
+     * @param message The human-readable error message (RFC Section 8.2)
      * @return The formatted response string
      */
     public static String buildErrorResponse(String errorCode, String message) {
@@ -150,8 +152,9 @@ public class Message {
     
     /**
      * Constructs the handshake response message.
-     * 
-     * RFC Section 8.1: Format: OK BOARD <board_width> <board_height> NOTE <note_width> <note_height> colourS <colour1> <colour2> ... <colourN>
+     *
+     * RFC Section 8.1: OK BOARD &lt;board_width&gt; &lt;board_height&gt; NOTE &lt;note_width&gt; &lt;note_height&gt; colourS &lt;colour1&gt; &lt;colour2&gt; ... &lt;colourN&gt;
+     * Sent immediately upon accepting a new client connection (RFC Section 2.2).
      * 
      * @param boardWidth The board width
      * @param boardHeight The board height
@@ -167,8 +170,8 @@ public class Message {
     
     /**
      * Parses a note list from GET response.
-     * 
-     * RFC Section 7.2.2: Format: OK x y colour content;x y colour content;...
+     *
+     * RFC Section 6.2.3 note_repr: &lt;INT&gt; SP &lt;INT&gt; SP &lt;colour&gt; SP &lt;STRING&gt; separated by ";"
      * 
      * @param response The response string (without "OK " prefix)
      * @return A list of note data arrays, each containing [x, y, colour, content]
@@ -180,8 +183,8 @@ public class Message {
     
     /**
      * Parses a pin list from GET PINS response.
-     * 
-     * RFC Section 7.2.1: Format: OK x1 y1;x2 y2;...
+     *
+     * RFC Section 7.2.1: If pins exist OK x1 y1;x2 y2;... ; pin_repr is &lt;INT&gt; SP &lt;INT&gt;
      * 
      * @param response The response string (without "OK " prefix)
      * @return A list of pin coordinate arrays, each containing [x, y]

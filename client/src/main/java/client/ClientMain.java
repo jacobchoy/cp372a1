@@ -5,15 +5,15 @@ package client;
  * 
  * This class initializes and starts the GUI client application.
  * It creates the main window and establishes a connection to the server.
- * 
- * @author Team Members
+ * RFC Section 2.2: Client establishes TCP connection to server's IP address and port.
+ *
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class ClientMain {
-    
+
     /**
      * Main entry point for the client application.
-     * 
      * Accepts optional command-line arguments:
      * - args[0]: Server hostname or IP address (default: localhost)
      * - args[1]: Server port number (default: 6767)

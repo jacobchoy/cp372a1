@@ -9,8 +9,9 @@ import java.awt.*;
  * This widget displays a small visual indicator (e.g., a circle or icon)
  * at the pin's coordinate position. Pins are typically displayed on top
  * of notes to indicate that a note is pinned.
- * 
- * @author Team Members
+ * RFC Section 4.4: Pin is defined by coordinate (x, y); protocol uses coordinates.
+ *
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class PinWidget extends JComponent {

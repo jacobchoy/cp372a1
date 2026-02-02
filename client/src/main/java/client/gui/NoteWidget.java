@@ -11,8 +11,9 @@ import java.awt.*;
  * - The note's message text
  * - Visual indication if the note is pinned
  * - The note's position on the board
- * 
- * @author Team Members
+ * RFC Section 4.3: Note has position (x,y), colour, content, and pin status (derived).
+ *
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class NoteWidget extends JComponent {

@@ -9,10 +9,11 @@ import java.util.List;
  * synchronized access methods to ensure thread safety when multiple clients
  * access the board concurrently.
  * 
- * The board has fixed dimensions defined at server startup. All coordinates
- * are non-negative integers with the origin (0,0) at the upper-left corner.
- * 
- * @author Team Members
+ * RFC Section 4.2: Board has fixed dimensions; notes MUST lie completely within boundaries;
+ * notes MAY partially overlap but MUST NOT completely overlap (Section 3).
+ * RFC Section 10.2: Shared data protection; modifications must prevent data races.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class BulletinBoard {
@@ -24,13 +25,23 @@ public class BulletinBoard {
     /**
      * Constructs a new BulletinBoard with specified dimensions.
      * 
-     * @param boardWidth The width of the bulletin board
-     * @param boardHeight The height of the bulletin board
-     * @param noteWidth The fixed width of all notes
-     * @param noteHeight The fixed height of all notes
+     * The board dimensions are defined at server startup (RFC Section 2.2)
+     * and passed to this constructor from ServerMain.main().
+     * 
+     * These dimensions are stored in the final fields and remain constant
+     * for the lifetime of the server (RFC Section 4.2).
+     * 
+     * @param boardWidth The width of the bulletin board (from command-line args[1])
+     * @param boardHeight The height of the bulletin board (from command-line args[2])
+     * @param noteWidth The fixed width of all notes (from command-line args[3])
+     * @param noteHeight The fixed height of all notes (from command-line args[4])
      */
     public BulletinBoard(int boardWidth, int boardHeight, int noteWidth, int noteHeight) {
-        // Implementation will go here
+        // TODO: Store the dimensions in the final fields
+        // this.boardWidth = boardWidth;
+        // this.boardHeight = boardHeight;
+        // this.noteWidth = noteWidth;
+        // this.noteHeight = noteHeight;
     }
     
     /**
@@ -139,9 +150,9 @@ public class BulletinBoard {
     
     /**
      * Gets all notes with the specified colour.
-     * 
-     * RFC Section 7.2.2: GET colour=<colour> returns notes with that colour.
-     * 
+     *
+     * RFC Section 7.2.2: GET color=&lt;colour&gt; returns notes with that colour.
+     *
      * @param colour The colour to filter by
      * @return A list of notes with the specified colour
      */
@@ -176,17 +187,26 @@ public class BulletinBoard {
     }
     
     /**
+     * Removes all notes and all pins from the board.
+     *
+     * RFC Section 7.6: CLEAR removes all notes and all pins. The operation MUST be atomic (Section 10.3).
+     */
+    public void clear() {
+        // Implementation will go here
+    }
+
+    /**
      * Retrieves all pins currently on the bulletin board.
-     * 
+     *
      * @return A list of all pins (defensive copy for thread safety)
      */
     public List<Pin> getPins() {
         // Implementation will go here
         return null;
     }
-    
+
     /**
-     * Retrieves a specific pin by its ID.
+     * Retrieves a specific pin by its ID (internal use; protocol identifies pins by coordinates).
      * 
      * @param pinId The unique identifier of the pin
      * @return The pin with the given ID, or null if not found
@@ -234,7 +254,9 @@ public class BulletinBoard {
     
     /**
      * Validates if a note's position and dimensions are within board boundaries.
-     * 
+     *
+     * RFC Section 4.2: All notes MUST lie completely within the board boundaries.
+     *
      * @param x The x-coordinate of the note's upper-left corner
      * @param y The y-coordinate of the note's upper-left corner
      * @return true if the note lies completely within the board, false otherwise
@@ -246,7 +268,9 @@ public class BulletinBoard {
     
     /**
      * Checks if two notes completely overlap (occupy the exact same region).
-     * 
+     *
+     * RFC Section 3: Complete overlap = same rectangular region and coordinates.
+     *
      * @param note1 The first note
      * @param note2 The second note
      * @return true if the notes completely overlap, false otherwise
@@ -258,7 +282,9 @@ public class BulletinBoard {
     
     /**
      * Checks if a pin coordinate lies within a note's boundaries.
-     * 
+     *
+     * RFC Section 4.4: A pin MAY be placed only at a coordinate inside at least one existing note.
+     *
      * @param pinX The x-coordinate of the pin
      * @param pinY The y-coordinate of the pin
      * @param note The note to check against

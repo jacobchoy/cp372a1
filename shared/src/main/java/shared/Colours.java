@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * Shared color list for the Bulletin Board System.
  * 
- * This class defines the predefined list of colors that can be used
- * for notes. Both client and server should use this list to ensure
- * consistency.
- * 
- * @author Team Members
+ * Valid colours are provided by the server at startup (RFC Section 2.2).
+ * This shared list may be used for client-side validation; server sends
+ * actual list in handshake (RFC Section 8.1).
+ *
+ * @author Jacob Choy, Jonathan Bilewicz
  * @version 1.0
  */
 public class Colours {

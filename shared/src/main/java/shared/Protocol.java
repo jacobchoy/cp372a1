@@ -6,10 +6,10 @@ package shared;
  * This class defines all protocol command strings and response codes
  * used for communication between the client and server.
  * 
- * Both client and server should use these constants to ensure
- * protocol consistency.
+ * Both client and server MUST use these constants to ensure
+ * protocol consistency (RFC Section 1.1).
  * 
- * @author Team Members
+ * @author Jacob Choy, Jonathan Bilewicz
  * @version 1.0
  */
 public class Protocol {
@@ -49,8 +49,8 @@ public class Protocol {
     public static final String LIST_SEPARATOR = ";";
     public static final String LINE_END = "\n";
     
-    // GET filter prefixes (RFC Section 7.2.2)
-    public static final String FILTER_COLOUR = "colour=";
+    // GET filter prefixes (RFC Section 7.2.2 - criterion syntax uses "color=")
+    public static final String FILTER_COLOR = "color=";
     public static final String FILTER_CONTAINS = "contains=";
     public static final String FILTER_REFERS_TO = "refersTo=";
     

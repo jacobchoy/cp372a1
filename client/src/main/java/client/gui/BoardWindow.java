@@ -15,9 +15,11 @@ import java.awt.event.ActionListener;
  * - Controls for querying, pinning, and deleting notes
  * - Status messages and error notifications
  * 
- * The window maintains a connection to the server and updates
- * the display when the board state changes.
- * 
+ * The window maintains a connection to the server and updates the display when the board state changes.
+ * RFC Section 1.2: GUI layout and UI features are not covered by the RFC; this is client implementation.
+ *
+ * @author Jonathan Bilewicz
+ * @version 1.0
  */
 public class BoardWindow extends JFrame {
     private ClientConnection connection;
@@ -77,9 +79,7 @@ public class BoardWindow extends JFrame {
 
     /**
      * Handles the GET button click to retrieve notes.
-     * 
-     * RFC Section 7.2: Supports GET PINS or GET with filters (colour=, contains=,
-     * refersTo=)
+     * RFC Section 7.2: GET PINS or GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]
      */
     private void handleGet() {
         // Implementation will go here
@@ -168,8 +168,9 @@ public class BoardWindow extends JFrame {
 
     /**
      * Displays an error message to the user.
-     * 
-     * @param message The error message to display
+     * RFC Section 9.2: Client SHOULD handle all error responses clearly with meaningful displays.
+     *
+     * @param message The error message (e.g. from ERROR &lt;ERROR_CODE&gt; &lt;message&gt;)
      */
     public void showError(String message) {
         // Implementation will go here

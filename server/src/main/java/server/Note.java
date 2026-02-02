@@ -3,16 +3,11 @@ package server;
 /**
  * Represents a note on the bulletin board.
  * 
- * A note is a rectangular Post-it-like element with:
- * - Upper-left corner coordinates (x, y)
- * - A color from a predefined list
- * - Message content (text string)
- * - Fixed width and height (defined at server startup)
- * - A unique identifier
- * 
- * Notes may be pinned (have at least one active pin) or unpinned.
- * 
- * @author Team Members
+ * RFC Section 4.3: Position (x,y), Dimensions (static width/height from server startup),
+ * Colour (from valid list), Content (string; MAY contain spaces), Pin status (derived from pins).
+ * All notes are initially unpinned when posted.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class Note {

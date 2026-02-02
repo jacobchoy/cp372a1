@@ -7,9 +7,9 @@ package server;
  * A pin MAY be placed only at a coordinate that lies inside at least one existing note.
  * A single pin coordinate MAY be associated with multiple notes if those notes partially overlap.
  * 
- * Note: Internally, pins may have IDs for tracking, but the protocol uses coordinates.
- * 
- * @author Team Members
+ * Protocol identifies pins by coordinates (PIN x y, UNPIN x y); internal ID is for tracking only.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class Pin {

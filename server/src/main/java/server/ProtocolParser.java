@@ -7,18 +7,19 @@ package server;
  * - Parsing command strings into structured data
  * - Validating command syntax and parameters
  * - Extracting command types and arguments
- * - Generating error messages for invalid commands
- * 
- * @author Team Members
+ * - Generating error messages for invalid commands (RFC Section 9.1 error codes).
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class ProtocolParser {
-    
+
     /**
      * Parses a command string and extracts the command type.
-     * 
+     * RFC Section 6.1: Commands are case-sensitive and MUST be uppercase.
+     *
      * @param command The raw command string from the client
-     * @return The command type (e.g., "POST", "QUERY", "PIN", etc.) or null if invalid
+     * @return The command type (POST, GET, PIN, UNPIN, SHAKE, CLEAR, DISCONNECT) or null if invalid
      */
     public String parseCommandType(String command) {
         // Implementation will go here
@@ -38,11 +39,10 @@ public class ProtocolParser {
     
     /**
      * Parses a POST command and extracts note information.
-     * 
-     * Expected format: POST x y color message
-     * 
+     * RFC Section 7.1: POST x y colour message... (message is rest of line).
+     *
      * @param params The parameter string from the POST command
-     * @return An array containing [x, y, color, message] or null if invalid
+     * @return An array containing [x, y, colour, message] or null if invalid
      */
     public String[] parsePostCommand(String params) {
         // Implementation will go here
@@ -64,9 +64,8 @@ public class ProtocolParser {
     
     /**
      * Parses GET filter criteria.
-     * 
-     * RFC Section 7.2.2: Filters are colour=<colour>, contains=<x> <y>, refersTo=<substring>
-     * 
+     * RFC Section 7.2.2: criterion = "color="&lt;colour&gt; | "contains="&lt;INT&gt; SP &lt;INT&gt; | "refersTo="&lt;STRING&gt;
+     *
      * @param params The filter parameter string
      * @return A map or object containing parsed filter criteria, or null if invalid
      */
@@ -113,13 +112,14 @@ public class ProtocolParser {
     }
     
     /**
-     * Generates an error message for an invalid command.
-     * 
-     * @param command The invalid command string
-     * @param reason The reason why the command is invalid
-     * @return A formatted error message
+     * Generates an ERROR response for an invalid command.
+     * RFC Section 8.2: ERROR &lt;ERROR_CODE&gt; &lt;human-readable message&gt;
+     *
+     * @param errorCode The error code (RFC Section 9.1)
+     * @param message The human-readable message
+     * @return A formatted ERROR response line
      */
-    public String generateErrorMessage(String command, String reason) {
+    public String generateErrorMessage(String errorCode, String message) {
         // Implementation will go here
         return "";
     }

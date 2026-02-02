@@ -10,9 +10,9 @@ import java.util.Map;
  * Provides methods for:
  * - Converting color name strings to Color objects
  * - Validating color names against the predefined list
- * - Getting the list of available colors
- * 
- * @author Team Members
+ * - Getting the list of available colors (valid colours from server handshake, RFC Section 8.1)
+ *
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class ColorUtils {

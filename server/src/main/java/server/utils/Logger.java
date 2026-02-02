@@ -12,8 +12,9 @@ import java.time.format.DateTimeFormatter;
  * 
  * Provides methods for logging information, warnings, and errors
  * to both the console and optionally to a log file.
- * 
- * @author Team Members
+ * RFC Section 9.3: Log or handle internal errors without exposing sensitive details to client.
+ *
+ * @author Jacob Choy
  * @version 1.0
  */
 public class Logger {

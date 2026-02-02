@@ -15,8 +15,9 @@ import java.net.Socket;
  * - Receiving responses from the server
  * - Parsing server messages
  * - Notifying the GUI of state changes
- * 
- * @author Team Members
+ * RFC Section 5.2: Client MUST wait to send a new command until it has received the response to the previous command.
+ *
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class ClientConnection {
