@@ -17,7 +17,7 @@ import java.awt.event.ActionListener;
  * 
  * The window maintains a connection to the server and updates
  * the display when the board state changes.
-
+ * 
  */
 public class BoardWindow extends JFrame {
     private ClientConnection connection;
@@ -26,28 +26,28 @@ public class BoardWindow extends JFrame {
     private int boardHeight;
     private int noteWidth;
     private int noteHeight;
-    
+
     /**
      * Constructs a new BoardWindow.
      * 
-     * @param connection The ClientConnection to use for server communication
-     * @param boardWidth The width of the bulletin board
+     * @param connection  The ClientConnection to use for server communication
+     * @param boardWidth  The width of the bulletin board
      * @param boardHeight The height of the bulletin board
-     * @param noteWidth The fixed width of notes
-     * @param noteHeight The fixed height of notes
+     * @param noteWidth   The fixed width of notes
+     * @param noteHeight  The fixed height of notes
      */
-    public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight, 
-                      int noteWidth, int noteHeight) {
+    public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight,
+            int noteWidth, int noteHeight) {
         // Implementation will go here
     }
-    
+
     /**
      * Initializes the GUI components and layout.
      */
     private void initializeGUI() {
         // Implementation will go here
     }
-    
+
     /**
      * Creates the control panel with buttons and input fields.
      * 
@@ -57,7 +57,7 @@ public class BoardWindow extends JFrame {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Creates the board canvas panel where notes are displayed.
      * 
@@ -67,23 +67,24 @@ public class BoardWindow extends JFrame {
         // Implementation will go here
         return null;
     }
-    
+
     /**
      * Handles the POST button click to add a new note.
      */
     private void handlePostNote() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the GET button click to retrieve notes.
      * 
-     * RFC Section 7.2: Supports GET PINS or GET with filters (colour=, contains=, refersTo=)
+     * RFC Section 7.2: Supports GET PINS or GET with filters (colour=, contains=,
+     * refersTo=)
      */
     private void handleGet() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the GET PINS button click to retrieve all pins.
      * 
@@ -92,7 +93,7 @@ public class BoardWindow extends JFrame {
     private void handleGetPins() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the PIN button click to add a pin at coordinates.
      * 
@@ -101,7 +102,7 @@ public class BoardWindow extends JFrame {
     private void handlePin() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the UNPIN button click to remove a pin at coordinates.
      * 
@@ -110,7 +111,7 @@ public class BoardWindow extends JFrame {
     private void handleUnpin() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the SHAKE button click to remove all unpinned notes.
      * 
@@ -119,7 +120,7 @@ public class BoardWindow extends JFrame {
     private void handleShake() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the CLEAR button click to remove all notes and pins.
      * 
@@ -128,7 +129,7 @@ public class BoardWindow extends JFrame {
     private void handleClear() {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the DISCONNECT button click to close the connection.
      * 
@@ -137,7 +138,7 @@ public class BoardWindow extends JFrame {
     private void handleDisconnect() {
         // Implementation will go here
     }
-    
+
     /**
      * Updates the board display with the current state from the server.
      * 
@@ -146,7 +147,7 @@ public class BoardWindow extends JFrame {
     public void updateBoard() {
         // Implementation will go here
     }
-    
+
     /**
      * Adds a note widget to the board display.
      * 
@@ -155,7 +156,7 @@ public class BoardWindow extends JFrame {
     public void addNoteWidget(NoteWidget noteWidget) {
         // Implementation will go here
     }
-    
+
     /**
      * Removes a note widget from the board display.
      * 
@@ -164,7 +165,7 @@ public class BoardWindow extends JFrame {
     public void removeNoteWidget(String noteId) {
         // Implementation will go here
     }
-    
+
     /**
      * Displays an error message to the user.
      * 
@@ -173,7 +174,7 @@ public class BoardWindow extends JFrame {
     public void showError(String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Displays a status message to the user.
      * 
@@ -182,7 +183,7 @@ public class BoardWindow extends JFrame {
     public void showStatus(String message) {
         // Implementation will go here
     }
-    
+
     /**
      * Paints the board canvas with all notes and pins.
      * 
