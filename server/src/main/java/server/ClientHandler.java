@@ -16,10 +16,12 @@ import java.net.Socket;
  * - Sending responses back to the client
  * - Handling connection errors and cleanup
  * 
- * RFC Section 10.1: One thread per client connection; all threads share the global board.
- * RFC Section 5.2: For each command (except DISCONNECT), server sends exactly one response line.
+ * RFC Section 10.1: One thread per client connection; all threads share the
+ * global board.
+ * RFC Section 5.2: For each command (except DISCONNECT), server sends exactly
+ * one response line.
  *
- * @author Jacob Choy
+ * @author Jonathan Bilewicz
  * @version 1.0
  */
 public class ClientHandler implements Runnable {
@@ -42,7 +44,7 @@ public class ClientHandler implements Runnable {
         this.bulletinBoard = bulletinBoard;
         this.validColours = validColours != null ? validColours : new java.util.ArrayList<>();
     }
-    
+
     /**
      * Main run method executed by the thread.
      * 
@@ -55,17 +57,19 @@ public class ClientHandler implements Runnable {
     public void run() {
         // Implementation will go here
     }
-    
+
     /**
      * Sends the initial handshake message to the client.
      * 
-     * RFC Section 8.1: OK BOARD &lt;board_width&gt; &lt;board_height&gt; NOTE &lt;note_width&gt; &lt;note_height&gt; colourS &lt;colour1&gt; ... &lt;colourN&gt;
+     * RFC Section 8.1: OK BOARD &lt;board_width&gt; &lt;board_height&gt; NOTE
+     * &lt;note_width&gt; &lt;note_height&gt; colourS &lt;colour1&gt; ...
+     * &lt;colourN&gt;
      * Sent immediately upon accepting a new client connection (RFC Section 2.2).
      */
     private void sendInitialMessage() {
         // Implementation will go here
     }
-    
+
     /**
      * Processes a single command from the client.
      * 
@@ -77,7 +81,7 @@ public class ClientHandler implements Runnable {
     private void processCommand(String command) {
         // Implementation will go here
     }
-    
+
     /**
      * Handles the POST command to add a new note.
      * 
@@ -88,11 +92,12 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the GET command to retrieve notes or pins.
      * 
-     * RFC Section 7.2: GET PINS or GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]
+     * RFC Section 7.2: GET PINS or GET [color=&lt;colour&gt;] [contains=&lt;x&gt;
+     * &lt;y&gt;] [refersTo=&lt;substring&gt;]
      * 
      * @param params The parameters for the GET command
      * @return The response message to send to the client
@@ -101,7 +106,7 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles GET PINS subcommand.
      * 
@@ -113,11 +118,12 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles GET with filter criteria.
      * 
-     * RFC Section 7.2.2: GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;] [refersTo=&lt;substring&gt;]; criteria combined with logical AND.
+     * RFC Section 7.2.2: GET [color=&lt;colour&gt;] [contains=&lt;x&gt; &lt;y&gt;]
+     * [refersTo=&lt;substring&gt;]; criteria combined with logical AND.
      * 
      * @param params The filter parameters
      * @return The response message with matching notes as "x y colour content;..."
@@ -126,7 +132,7 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the PIN command to add a pin at coordinates.
      * 
@@ -140,7 +146,7 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the UNPIN command to remove a pin at coordinates.
      * 
@@ -153,7 +159,7 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the SHAKE command to remove all unpinned notes.
      * 
@@ -166,7 +172,7 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the CLEAR command to remove all notes and pins.
      * 
@@ -179,11 +185,12 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Handles the DISCONNECT command to close the connection.
      *
-     * RFC Section 7.7: Server may send OK before closing or close immediately; MUST clean up resources; MUST NOT crash on unexpected disconnect.
+     * RFC Section 7.7: Server may send OK before closing or close immediately; MUST
+     * clean up resources; MUST NOT crash on unexpected disconnect.
      * 
      * @return The response message (OK) or null if closing immediately
      */
@@ -191,10 +198,11 @@ public class ClientHandler implements Runnable {
         // Implementation will go here
         return "";
     }
-    
+
     /**
      * Closes the client connection and cleans up resources.
-     * RFC Section 11: If client disconnects unexpectedly, server MUST clean up and continue serving other clients.
+     * RFC Section 11: If client disconnects unexpectedly, server MUST clean up and
+     * continue serving other clients.
      */
     private void closeConnection() {
         // Implementation will go here
