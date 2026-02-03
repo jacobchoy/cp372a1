@@ -11,4 +11,4 @@ if (-not (Test-Path "$root\build\server\server\ServerMain.class")) {
 }
 
 Write-Host "Starting server on port 6767..."
-java -cp "$root\build\server;$root\build\shared" server.ServerMain 6767 400 300 80 60 red green blue yellow
+java -cp "$root\build\server;$root\build\shared" server.ServerMain 6767 400 300 80 60 red blue green

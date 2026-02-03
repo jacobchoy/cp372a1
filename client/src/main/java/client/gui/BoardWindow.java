@@ -121,84 +121,108 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private JPanel createControlPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        panel.setBackground(WINDOW_BG);
+        Border border = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BOARD_BORDER, 1),
+            BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
-        panel.add(new JLabel("POST:"));
+        // POST (RFC 7.1): add note at (x,y) with colour and message
+        JPanel postBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        postBox.setBackground(WINDOW_BG);
+        postBox.setBorder(BorderFactory.createTitledBorder(border, "POST", 0, 0, null, Color.DARK_GRAY));
+        postBox.add(new JLabel("x:"));
         postXField = new JTextField(3);
+        postBox.add(postXField);
+        postBox.add(new JLabel("y:"));
         postYField = new JTextField(3);
-        postXField.setToolTipText("x");
-        postYField.setToolTipText("y");
-        panel.add(postXField);
-        panel.add(postYField);
-        // Use server's colour list so POST works; fallback to lowercase defaults so they match typical server (e.g. "red")
-        List<String> colours;
-        if (availableColours != null && !availableColours.isEmpty()) {
-            colours = availableColours;
-        } else {
-            colours = new ArrayList<>();
-            for (String c : Colours.getAvailableColours()) {
-                colours.add(c.toLowerCase());
-            }
-        }
+        postBox.add(postYField);
+        postBox.add(new JLabel("colour:"));
+        List<String> colours = java.util.Arrays.asList("red", "blue", "green");
         colourCombo = new JComboBox<>(colours.toArray(new String[0]));
-        panel.add(colourCombo);
-        messageField = new JTextField(15);
-        messageField.setToolTipText("Message");
-        panel.add(messageField);
+        postBox.add(colourCombo);
+        postBox.add(new JLabel("message:"));
+        messageField = new JTextField(10);
+        postBox.add(messageField);
         JButton postBtn = new JButton("Post");
         postBtn.addActionListener(e -> handlePostNote());
-        panel.add(postBtn);
+        postBox.add(postBtn);
+        panel.add(postBox);
 
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
-
-        panel.add(new JLabel("GET:"));
-        getColourField = new JTextField(6);
-        getColourField.setToolTipText("color=...");
+        // GET (RFC 7.2): retrieve notes. Optional filters: color=, contains=x y, refersTo=text. Criteria ANDed.
+        JPanel getBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        getBox.setBackground(WINDOW_BG);
+        getBox.setBorder(BorderFactory.createTitledBorder(border, "GET notes (optional filters)", 0, 0, null, Color.DARK_GRAY));
+        getBox.add(new JLabel("colour:"));
+        getColourField = new JTextField(4);
+        getBox.add(getColourField);
+        getBox.add(new JLabel("contains x:"));
         getContainsXField = new JTextField(2);
+        getBox.add(getContainsXField);
+        getBox.add(new JLabel("y:"));
         getContainsYField = new JTextField(2);
-        getRefersToField = new JTextField(8);
-        panel.add(getColourField);
-        panel.add(getContainsXField);
-        panel.add(getContainsYField);
-        panel.add(getRefersToField);
+        getBox.add(getContainsYField);
+        getBox.add(new JLabel("refersTo:"));
+        getRefersToField = new JTextField(5);
+        getBox.add(getRefersToField);
         JButton getBtn = new JButton("Get");
         getBtn.addActionListener(e -> handleGet());
-        panel.add(getBtn);
+        getBox.add(getBtn);
+        panel.add(getBox);
+
+        // GET PINS (RFC 7.2.1): retrieve pin coordinates only
+        JPanel getPinsBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        getPinsBox.setBackground(WINDOW_BG);
+        getPinsBox.setBorder(BorderFactory.createTitledBorder(border, "GET PINS", 0, 0, null, Color.DARK_GRAY));
         JButton getPinsBtn = new JButton("Get Pins");
         getPinsBtn.addActionListener(e -> handleGetPins());
-        panel.add(getPinsBtn);
+        getPinsBox.add(getPinsBtn);
+        panel.add(getPinsBox);
 
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
-
-        panel.add(new JLabel("PIN:"));
+        // PIN (RFC 7.3): place pin at (x,y); note covering that point is pinned
+        JPanel pinBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        pinBox.setBackground(WINDOW_BG);
+        pinBox.setBorder(BorderFactory.createTitledBorder(border, "PIN", 0, 0, null, Color.DARK_GRAY));
+        pinBox.add(new JLabel("x:"));
         pinXField = new JTextField(3);
+        pinBox.add(pinXField);
+        pinBox.add(new JLabel("y:"));
         pinYField = new JTextField(3);
-        panel.add(pinXField);
-        panel.add(pinYField);
+        pinBox.add(pinYField);
         JButton pinBtn = new JButton("Pin");
         pinBtn.addActionListener(e -> handlePin());
-        panel.add(pinBtn);
+        pinBox.add(pinBtn);
+        panel.add(pinBox);
 
-        panel.add(new JLabel("UNPIN:"));
+        // UNPIN (RFC 7.4): remove pin at (x,y)
+        JPanel unpinBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        unpinBox.setBackground(WINDOW_BG);
+        unpinBox.setBorder(BorderFactory.createTitledBorder(border, "UNPIN", 0, 0, null, Color.DARK_GRAY));
+        unpinBox.add(new JLabel("x:"));
         unpinXField = new JTextField(3);
+        unpinBox.add(unpinXField);
+        unpinBox.add(new JLabel("y:"));
         unpinYField = new JTextField(3);
-        panel.add(unpinXField);
-        panel.add(unpinYField);
+        unpinBox.add(unpinYField);
         JButton unpinBtn = new JButton("Unpin");
         unpinBtn.addActionListener(e -> handleUnpin());
-        panel.add(unpinBtn);
+        unpinBox.add(unpinBtn);
+        panel.add(unpinBox);
 
+        // SHAKE (RFC 7.5) / CLEAR (RFC 7.6) / DISCONNECT (RFC 7.7)
+        JPanel actionsBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+        actionsBox.setBackground(WINDOW_BG);
+        actionsBox.setBorder(BorderFactory.createTitledBorder(border, "Actions", 0, 0, null, Color.DARK_GRAY));
         JButton shakeBtn = new JButton("Shake");
         shakeBtn.addActionListener(e -> handleShake());
-        panel.add(shakeBtn);
-
+        actionsBox.add(shakeBtn);
         JButton clearBtn = new JButton("Clear");
         clearBtn.addActionListener(e -> handleClear());
-        panel.add(clearBtn);
-
+        actionsBox.add(clearBtn);
         JButton disconnectBtn = new JButton("Disconnect");
         disconnectBtn.addActionListener(e -> handleDisconnect());
-        panel.add(disconnectBtn);
+        actionsBox.add(disconnectBtn);
+        panel.add(actionsBox);
 
         return panel;
     }
@@ -346,8 +370,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             lastSentCommand = "GET_PINS";
             connection.sendCommand(Protocol.CMD_GET + " " + Protocol.GET_PINS);
         } else if ("GET_PINS".equals(lastSentCommand)) {
-            applyPinsFromGetPinsResponse(remainder);
-            showStatus("Board updated.");
+            int pinCount = applyPinsFromGetPinsResponse(remainder);
+            showStatus("GET done: " + lastGetNoteCount + " note(s), " + pinCount + " pin(s) on board.");
             lastSentCommand = "";
         } else if (Protocol.CMD_POST.equals(lastSentCommand) || Protocol.CMD_PIN.equals(lastSentCommand)
                 || Protocol.CMD_UNPIN.equals(lastSentCommand) || Protocol.CMD_SHAKE.equals(lastSentCommand)
@@ -365,9 +389,12 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         connection.sendCommand(Protocol.CMD_GET);
     }
 
+    private int lastGetNoteCount = 0;
+
     private void applyNotesFromGetResponse(String remainder) {
         if (remainder == null || remainder.trim().isEmpty()) {
             noteWidgets.clear();
+            lastGetNoteCount = 0;
             repaintBoard();
             return;
         }
@@ -391,15 +418,16 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
                 }
             }
         }
+        lastGetNoteCount = noteWidgets.size();
         repaintBoard();
     }
 
-    private void applyPinsFromGetPinsResponse(String remainder) {
+    private int applyPinsFromGetPinsResponse(String remainder) {
         if (remainder == null || remainder.trim().isEmpty()) {
             pinWidgets.clear();
             updateNotePinnedState();
             repaintBoard();
-            return;
+            return 0;
         }
         String[] segments = remainder.split("\\" + Protocol.LIST_SEPARATOR);
         pinWidgets.clear();
@@ -421,6 +449,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
         updateNotePinnedState();
         repaintBoard();
+        return pinWidgets.size();
     }
 
     private boolean isNotePinned(int noteX, int noteY) {
