@@ -226,7 +226,7 @@ public class BulletinBoard {
     public synchronized List<Note> getNotesByColour(String colour) {
         List<Note> result = new ArrayList<>();
         for (Note note : notes) {
-            if (note.getColor().equals(colour)) {
+            if (note.getColour().equals(colour)) {
                 result.add(note);
             }
         }

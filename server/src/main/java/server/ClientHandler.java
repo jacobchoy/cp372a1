@@ -269,9 +269,9 @@ public class ClientHandler implements Runnable {
         for (Note note : allNotes) {
             boolean matches = true;
 
-            // Filter: color
+            // Filter: colour (protocol key is "color=")
             if (filters.containsKey("color")) {
-                if (!note.getColor().equals(filters.get("color"))) {
+                if (!note.getColour().equals(filters.get("color"))) {
                     matches = false;
                 }
             }
@@ -315,7 +315,7 @@ public class ClientHandler implements Runnable {
         for (int i = 0; i < result.size(); i++) {
             Note n = result.get(i);
             sb.append(n.getX()).append(" ").append(n.getY()).append(" ")
-                    .append(n.getColor()).append(" ").append(n.getMessage());
+                    .append(n.getColour()).append(" ").append(n.getMessage());
             if (i < result.size() - 1) {
                 sb.append(Protocol.LIST_SEPARATOR);
             }
