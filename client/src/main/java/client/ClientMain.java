@@ -70,7 +70,7 @@ public class ClientMain {
         final int nh = noteHeight;
 
         SwingUtilities.invokeLater(() -> {
-            BoardWindow window = new BoardWindow(conn, bw, bh, nw, nh);
+            BoardWindow window = new BoardWindow(conn, bw, bh, nw, nh, null);
             window.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
             window.setVisible(true);
         });

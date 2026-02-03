@@ -101,10 +101,9 @@ public class ProtocolParser {
         if (params == null)
             return null;
         String trimmed = params.trim();
-        if (trimmed.isEmpty())
-            return null;
         if (trimmed.equals(Protocol.GET_PINS))
             return Protocol.GET_PINS;
+        // Empty params = GET with no filters (return all notes)
         return trimmed;
     }
 
@@ -120,9 +119,9 @@ public class ProtocolParser {
         if (params == null)
             return null;
         String trimmed = params.trim();
-        if (trimmed.isEmpty())
-            return null;
         java.util.Map<String, String> filters = new java.util.HashMap<>();
+        if (trimmed.isEmpty())
+            return filters;
         String[] parts = trimmed.split(Protocol.DELIMITER);
         for (String part : parts) {
             part = part.trim();

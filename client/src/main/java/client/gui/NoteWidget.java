@@ -60,7 +60,7 @@ public class NoteWidget extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(colour);
-        g.fillRect(x, y, width, height);
+        g.fillRect(0, 0, width, height);
     }
 
     /**

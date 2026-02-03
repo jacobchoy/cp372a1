@@ -393,8 +393,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private boolean isNotePinned(int noteX, int noteY) {
         for (PinWidget p : pinWidgets) {
-            int px = p.getBoardX();
-            int py = p.getBoardY();
+            int px = p.getX();
+            int py = p.getY();
             if (px >= noteX && px < noteX + noteWidth && py >= noteY && py < noteY + noteHeight) {
                 return true;
             }
@@ -404,18 +404,18 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void updateNotePinnedState() {
         for (NoteWidget n : noteWidgets) {
-            n.setPinned(isNotePinned(n.getBoardX(), n.getBoardY()));
+            n.setPinned(isNotePinned(n.getX(), n.getY()));
         }
     }
 
     private void repaintBoard() {
         boardPanel.removeAll();
         for (NoteWidget w : noteWidgets) {
-            w.setBounds(w.getBoardX(), w.getBoardY(), noteWidth, noteHeight);
+            w.setBounds(w.getX(), w.getY(), noteWidth, noteHeight);
             boardPanel.add(w);
         }
         for (PinWidget w : pinWidgets) {
-            w.setBounds(w.getBoardX(), w.getBoardY(), 10, 10);
+            w.setBounds(w.getX(), w.getY(), 10, 10);
             boardPanel.add(w);
         }
         boardPanel.revalidate();
@@ -429,7 +429,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     public void addNoteWidget(NoteWidget noteWidget) {
         noteWidgets.add(noteWidget);
         boardPanel.add(noteWidget);
-        noteWidget.setBounds(noteWidget.getBoardX(), noteWidget.getBoardY(), noteWidth, noteHeight);
+        noteWidget.setBounds(noteWidget.getX(), noteWidget.getY(), noteWidth, noteHeight);
         boardPanel.revalidate();
         boardPanel.repaint();
     }

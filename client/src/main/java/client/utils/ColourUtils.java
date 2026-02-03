@@ -32,7 +32,7 @@ public class ColourUtils {
         colourMap.put("pink", Color.PINK);
         colourMap.put("white", Color.WHITE);
         colourMap.put("gray", Color.GRAY);
-        colourMap.put("brown", Color.BROWN);
+        colourMap.put("brown", Colours.BROWN);
         colourMap.put("orange", Color.ORANGE);
 
     }
