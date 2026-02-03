@@ -21,14 +21,14 @@ public class Message {
      * 
      * @param x The x-coordinate of the note
      * @param y The y-coordinate of the note
-     * @param color The color of the note
+     * @param colour The colour of the note
      * @param message The message text
      * @return The formatted command string
      */
-    public static String buildPostCommand(int x, int y, String color, String message) {
+    public static String buildPostCommand(int x, int y, String colour, String message) {
         // RFC 7.1: POST x y colour message... (fields separated by space; message is rest of line)
         return Protocol.CMD_POST + Protocol.DELIMITER + x + Protocol.DELIMITER + y
-                + Protocol.DELIMITER + color + Protocol.DELIMITER
+                + Protocol.DELIMITER + colour + Protocol.DELIMITER
                 + (message != null ? message : "") + Protocol.LINE_END;
     }
 
@@ -58,7 +58,7 @@ public class Message {
     public static String buildGetCommand(String colour, Integer containsX, Integer containsY, String refersTo) {
         StringBuilder sb = new StringBuilder(Protocol.CMD_GET);
         if (colour != null && !colour.isEmpty()) {
-            sb.append(Protocol.DELIMITER).append(Protocol.FILTER_COLOR).append(colour);
+            sb.append(Protocol.DELIMITER).append(Protocol.FILTER_COLOUR).append(colour);
         }
         if (containsX != null && containsY != null) {
             sb.append(Protocol.DELIMITER).append(Protocol.FILTER_CONTAINS).append(containsX).append(Protocol.DELIMITER).append(containsY);

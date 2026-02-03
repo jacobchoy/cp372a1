@@ -172,13 +172,13 @@ public class BulletinBoard {
 
     /**
      * Removes all unpinned notes from the board.
-     * 
+     *
      * RFC Section 7.5: SHAKE removes all unpinned notes.
      * The operation MUST be atomic.
-     * 
+     *
      * @return The number of notes removed
      */
-    public int shake() {
+    public synchronized int shake() {
         List<Note> toRemove = new ArrayList<>();
         for (Note note : notes) {
             boolean isPinned = false;
@@ -205,7 +205,7 @@ public class BulletinBoard {
      * @param y The y-coordinate to check
      * @return A list of notes that contain the coordinate
      */
-    public List<Note> getNotesContaining(int x, int y) {
+    public synchronized List<Note> getNotesContaining(int x, int y) {
         List<Note> result = new ArrayList<>();
         for (Note note : notes) {
             if (note.containsPoint(x, y, noteWidth, noteHeight)) {
@@ -226,7 +226,7 @@ public class BulletinBoard {
     public synchronized List<Note> getNotesByColour(String colour) {
         List<Note> result = new ArrayList<>();
         for (Note note : notes) {
-            if (note.getColor().equals(colour)) {
+            if (note.getColour().equals(colour)) {
                 result.add(note);
             }
         }

@@ -7,7 +7,7 @@ import java.awt.*;
  * GUI widget representing a note on the bulletin board.
  * 
  * This widget displays:
- * - The note's rectangular shape with its assigned color
+ * - The note's rectangular shape with its assigned colour
  * - The note's message text
  * - Visual indication if the note is pinned
  * - The note's position on the board
@@ -20,7 +20,7 @@ public class NoteWidget extends JComponent {
     private String noteId;
     private int x;
     private int y;
-    private String color;
+    private String colour;
     private String message;
     private boolean isPinned;
     private int width;
@@ -32,13 +32,13 @@ public class NoteWidget extends JComponent {
      * @param noteId The unique identifier of the note
      * @param x The x-coordinate of the note's upper-left corner
      * @param y The y-coordinate of the note's upper-left corner
-     * @param color The color of the note
+     * @param colour The colour of the note
      * @param message The message text of the note
      * @param isPinned Whether the note is currently pinned
      * @param width The width of the note
      * @param height The height of the note
      */
-    public NoteWidget(String noteId, int x, int y, String color, String message, 
+    public NoteWidget(String noteId, int x, int y, String colour, String message, 
                      boolean isPinned, int width, int height) {
         // Implementation will go here
     }
@@ -111,12 +111,12 @@ public class NoteWidget extends JComponent {
     }
     
     /**
-     * Converts a color name string to a Color object.
+     * Converts a colour name string to a Color object.
      * 
-     * @param colorName The name of the color
+     * @param colourName The name of the colour
      * @return The corresponding Color object, or Color.WHITE if not found
      */
-    private Color getColorFromName(String colorName) {
+    private Color getColourFromName(String colourName) {
         // Implementation will go here
         return Color.WHITE;
     }

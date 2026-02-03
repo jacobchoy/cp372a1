@@ -16,7 +16,7 @@ public class Note {
     private String id;
     private int x;
     private int y;
-    private String color;
+    private String colour;
     private String message;
 
     /**
@@ -25,14 +25,14 @@ public class Note {
      * @param id      The unique identifier for this note
      * @param x       The x-coordinate of the upper-left corner
      * @param y       The y-coordinate of the upper-left corner
-     * @param color   The color of the note (from predefined list)
+     * @param colour  The colour of the note (from predefined list)
      * @param message The text content of the note
      */
-    public Note(String id, int x, int y, String color, String message) {
+    public Note(String id, int x, int y, String colour, String message) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.color = color;
+        this.colour = colour;
         this.message = message;
     }
 
@@ -64,12 +64,12 @@ public class Note {
     }
 
     /**
-     * Gets the color of this note.
+     * Gets the colour of this note.
      * 
-     * @return The color name
+     * @return The colour name
      */
-    public String getColor() {
-        return color;
+    public String getColour() {
+        return colour;
     }
 
     /**
@@ -110,6 +110,6 @@ public class Note {
      */
     @Override
     public String toString() {
-        return String.format("ID: %s, Position: (%d, %d), Color: %s, Message: %s", id, x, y, color, message);
+        return String.format("ID: %s, Position: (%d, %d), Colour: %s, Message: %s", id, x, y, colour, message);
     }
 }

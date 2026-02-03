@@ -50,7 +50,7 @@ public class Protocol {
     public static final String LINE_END = "\n";
     
     // GET filter prefixes (RFC Section 7.2.2 - criterion syntax uses "color=")
-    public static final String FILTER_COLOR = "color=";
+    public static final String FILTER_COLOUR = "color=";
     public static final String FILTER_CONTAINS = "contains=";
     public static final String FILTER_REFERS_TO = "refersTo=";
     

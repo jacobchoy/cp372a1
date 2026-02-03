@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Shared color list for the Bulletin Board System.
+ * Shared colour list for the Bulletin Board System.
  * 
  * Valid colours are provided by the server at startup (RFC Section 2.2).
  * This shared list may be used for client-side validation; server sends
@@ -15,12 +15,12 @@ import java.util.List;
  */
 public class Colours {
     /**
-     * Predefined list of available colors for notes.
+     * Predefined list of available colours for notes.
      * 
-     * Colors are specified as strings that can be converted to
+     * Colours are specified as strings that can be converted to
      * Color objects by the client GUI.
      */
-    public static final List<String> AVAILABLE_COLORS = Arrays.asList(
+    public static final List<String> AVAILABLE_COLOURS = Arrays.asList(
         "RED",
         "ORANGE",
         "YELLOW",
@@ -34,34 +34,34 @@ public class Colours {
     );
     
     /**
-     * Gets the list of available color names.
+     * Gets the list of available colour names.
      * 
-     * @return A list of color name strings
+     * @return A list of colour name strings
      */
-    public static List<String> getAvailableColors() {
-        return AVAILABLE_COLORS;
+    public static List<String> getAvailableColours() {
+        return AVAILABLE_COLOURS;
     }
     
     /**
-     * Checks if a color name is valid (exists in the predefined list).
+     * Checks if a colour name is valid (exists in the predefined list).
      * 
-     * @param colorName The color name to validate (case-insensitive)
-     * @return true if the color is valid, false otherwise
+     * @param colourName The colour name to validate (case-insensitive)
+     * @return true if the colour is valid, false otherwise
      */
-    public static boolean isValidColor(String colorName) {
-        if (colorName == null) {
+    public static boolean isValidColour(String colourName) {
+        if (colourName == null) {
             return false;
         }
-        return AVAILABLE_COLORS.stream()
-                .anyMatch(color -> color.equalsIgnoreCase(colorName));
+        return AVAILABLE_COLOURS.stream()
+                .anyMatch(colour -> colour.equalsIgnoreCase(colourName));
     }
     
     /**
-     * Gets the default color name.
+     * Gets the default colour name.
      * 
-     * @return The default color name
+     * @return The default colour name
      */
-    public static String getDefaultColor() {
+    public static String getDefaultColour() {
         return "WHITE";
     }
     
