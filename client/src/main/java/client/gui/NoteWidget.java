@@ -61,6 +61,36 @@ public class NoteWidget extends JComponent {
     protected void paintComponent(Graphics g) {
         g.setColor(colour);
         g.fillRect(0, 0, width, height);
+        // Draw message text on the note
+        if (message != null && !message.trim().isEmpty()) {
+            g.setColor(getTextColor());
+            Font font = new Font("SansSerif", Font.PLAIN, Math.max(10, Math.min(width, height) / 6));
+            g.setFont(font);
+            FontMetrics fm = g.getFontMetrics();
+            int padding = 4;
+            int textWidth = fm.stringWidth(message);
+            String toDraw = message;
+            if (textWidth > width - 2 * padding) {
+                // Truncate with ellipsis
+                for (int i = message.length(); i > 0; i--) {
+                    toDraw = message.substring(0, i) + "...";
+                    if (fm.stringWidth(toDraw) <= width - 2 * padding) break;
+                }
+            }
+            int x = padding;
+            int y = (height + fm.getAscent()) / 2 - 2;
+            g.drawString(toDraw, x, y);
+        }
+        // Optional: thin border so note edges are clear
+        g.setColor(colour.darker());
+        g.drawRect(0, 0, width - 1, height - 1);
+    }
+
+    /** Pick a readable text colour against the note background. */
+    private Color getTextColor() {
+        int r = colour.getRed(), g = colour.getGreen(), b = colour.getBlue();
+        double luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.6 ? Color.BLACK : Color.WHITE;
     }
 
     /**

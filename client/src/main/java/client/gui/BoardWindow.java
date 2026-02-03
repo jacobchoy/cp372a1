@@ -6,6 +6,7 @@ import shared.Colours;
 import shared.Protocol;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,19 +73,58 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void initializeGUI() {
         setLayout(new BorderLayout(5, 5));
+        getContentPane().setBackground(new Color(230, 230, 235));
 
         JPanel controls = createControlPanel();
+        controls.setBackground(new Color(230, 230, 235));
         add(controls, BorderLayout.NORTH);
 
         boardPanel = createBoardPanel();
         JScrollPane scrollPane = new JScrollPane(boardPanel);
+        scrollPane.setBackground(new Color(230, 230, 235));
+        scrollPane.getViewport().setBackground(new Color(230, 230, 235));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 185), 1));
         add(scrollPane, BorderLayout.CENTER);
 
+        JPanel infoPanel = createBoardInfoPanel();
+        infoPanel.setBackground(new Color(230, 230, 235));
+        add(infoPanel, BorderLayout.EAST);
+
         statusLabel = new JLabel("Ready.");
+        statusLabel.setBackground(new Color(230, 230, 235));
         add(statusLabel, BorderLayout.SOUTH);
 
         pack();
-        setSize(Math.max(500, boardWidth + 50), Math.max(400, boardHeight + 150));
+        int windowWidth = Math.max(boardWidth + 220, 950);
+        int windowHeight = boardHeight + 200;
+        setSize(windowWidth, windowHeight);
+        setMinimumSize(new Dimension(windowWidth, windowHeight));
+        setResizable(false);
+    }
+
+    private JPanel createBoardInfoPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Board info"));
+        panel.setPreferredSize(new Dimension(200, 0));
+
+        int endX = Math.max(0, boardWidth - 1);
+        int endY = Math.max(0, boardHeight - 1);
+
+        panel.add(new JLabel("Bulletin board size:"));
+        panel.add(new JLabel("  " + boardWidth + " × " + boardHeight));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(new JLabel("Note size:"));
+        panel.add(new JLabel("  " + noteWidth + " × " + noteHeight));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(new JLabel("Board coordinates:"));
+        panel.add(new JLabel("  X: 0 to " + endX));
+        panel.add(new JLabel("  Y: 0 to " + endY));
+        panel.add(new JLabel("  (0,0) top-left"));
+        panel.add(new JLabel("  (" + endX + "," + endY + ") bottom-right"));
+
+        panel.add(Box.createVerticalGlue());
+        return panel;
     }
 
     private JPanel createControlPanel() {
@@ -179,8 +219,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             }
         };
         panel.setPreferredSize(new Dimension(boardWidth, boardHeight));
-        panel.setBackground(new Color(240, 240, 220));
-        panel.setOpaque(true);
+        panel.setOpaque(false);
         return panel;
     }
 
@@ -451,9 +490,10 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private void paintBoard(Graphics g) {
-        g.setColor(new Color(240, 240, 220));
+        Color boardFill = new Color(252, 252, 254);
+        g.setColor(boardFill);
         g.fillRect(0, 0, boardWidth, boardHeight);
-        g.setColor(Color.GRAY);
+        g.setColor(new Color(200, 200, 205));
         g.drawRect(0, 0, boardWidth - 1, boardHeight - 1);
     }
 }

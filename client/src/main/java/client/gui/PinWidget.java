@@ -53,10 +53,13 @@ public class PinWidget extends JComponent {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int s = PIN_SIZE;
-        g2.setColor(new Color(80, 80, 80));
+        // Red pin head so it's obvious on any note
+        g2.setColor(new Color(200, 50, 50));
         g2.fillOval(0, 0, s, s);
-        g2.setColor(new Color(120, 120, 120));
+        g2.setColor(new Color(120, 25, 25));
         g2.drawOval(0, 0, s - 1, s - 1);
+        g2.setColor(new Color(255, 180, 180));
+        g2.fillOval(2, 2, 3, 3);
         g2.dispose();
     }
 
