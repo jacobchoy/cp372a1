@@ -123,13 +123,22 @@ public class ProtocolParser {
         if (trimmed.isEmpty())
             return filters;
         String[] parts = trimmed.split(Protocol.DELIMITER);
-        for (String part : parts) {
-            part = part.trim();
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i].trim();
             if (part.isEmpty())
                 continue;
             String[] keyValue = part.split("=", 2);
             if (keyValue.length == 2) {
-                filters.put(keyValue[0], keyValue[1]);
+                String key = keyValue[0];
+                String value = keyValue[1];
+                if ("contains".equals(key) && i + 1 < parts.length) {
+                    String next = parts[i + 1].trim();
+                    if (!next.isEmpty() && !next.contains("=")) {
+                        value = value + " " + next;
+                        i++;
+                    }
+                }
+                filters.put(key, value);
             }
         }
         return filters;

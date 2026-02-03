@@ -72,10 +72,11 @@ public class ClientHandler implements Runnable {
 
             String line;
             while ((line = in.readLine()) != null) {
-                // If client just sends empty lines/whitespace?
                 if (line.trim().isEmpty())
                     continue;
-                processCommand(line);
+                if (processCommand(line)) {
+                    break;
+                }
             }
         } catch (IOException e) {
             System.err.println("Error handling client: " + e.getMessage());
@@ -102,16 +103,14 @@ public class ClientHandler implements Runnable {
 
     /**
      * Processes a single command from the client.
-     * 
-     * Parses the command and executes the appropriate action on the bulletin board.
-     * Sends a response back to the client.
-     * 
+     *
      * @param command The command string received from the client
+     * @return true if the connection should close (e.g. after DISCONNECT), false otherwise
      */
-    private void processCommand(String command) {
+    private boolean processCommand(String command) {
         if (!ProtocolParser.isValidCommand(command)) {
             out.println(Protocol.RESP_ERROR + " " + Protocol.ERR_UNKNOWN_COMMAND + " Unknown command");
-            return;
+            return false;
         }
 
         String commandType = ProtocolParser.parseCommandType(command);
@@ -151,6 +150,8 @@ public class ClientHandler implements Runnable {
         if (response != null && !response.isEmpty()) {
             out.println(response);
         }
+
+        return "DISCONNECT".equals(commandType);
     }
 
     /**

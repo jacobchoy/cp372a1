@@ -8,7 +8,9 @@ import shared.Protocol;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,12 +41,15 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private final List<PinWidget> pinWidgets = new ArrayList<>();
     private JLabel statusLabel;
     private String lastSentCommand = "";
+    private boolean getWasUserInitiated;
+    private String lastGetFilterDescription;
+    private JTextArea getLogArea;
 
     private JTextField postXField;
     private JTextField postYField;
     private JComboBox<String> colourCombo;
     private JTextField messageField;
-    private JTextField getColourField;
+    private JComboBox<String> getColourCombo;
     private JTextField getContainsXField;
     private JTextField getContainsYField;
     private JTextField getRefersToField;
@@ -90,26 +95,25 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         scrollPane.setBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1));
         add(scrollPane, BorderLayout.CENTER);
 
-        JPanel infoPanel = createBoardInfoPanel();
-        infoPanel.setBackground(WINDOW_BG);
-        add(infoPanel, BorderLayout.EAST);
+        JPanel eastPanel = new JPanel(new BorderLayout(0, 8));
+        eastPanel.setBackground(WINDOW_BG);
+        eastPanel.add(createBoardInfoPanel(), BorderLayout.NORTH);
+        eastPanel.add(createGetLogPanel(), BorderLayout.CENTER);
+        add(eastPanel, BorderLayout.EAST);
 
         statusLabel = new JLabel("Ready.");
         statusLabel.setBackground(WINDOW_BG);
         add(statusLabel, BorderLayout.SOUTH);
 
         pack();
-        int windowWidth = Math.max(boardWidth + 220, 1450);
-        int windowHeight = boardHeight + 200;
-        setSize(windowWidth, windowHeight);
-        setMinimumSize(new Dimension(windowWidth, windowHeight));
-        setResizable(false);
+        setSize(boardWidth + 240, boardHeight + 220);
+        setResizable(true);
     }
 
     private JPanel createBoardInfoPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
         panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        panel.setPreferredSize(new Dimension(160, 0));
+        panel.setPreferredSize(new Dimension(200, 0));
         panel.setBackground(WINDOW_BG);
 
         int endX = Math.max(0, boardWidth - 1);
@@ -120,8 +124,33 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return panel;
     }
 
+    private JPanel createGetLogPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "GET log", 0, 0, null, Color.DARK_GRAY));
+        panel.setBackground(WINDOW_BG);
+        panel.setPreferredSize(new Dimension(220, 180));
+
+        getLogArea = new JTextArea(10, 20);
+        getLogArea.setEditable(false);
+        getLogArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        getLogArea.setLineWrap(true);
+        getLogArea.setWrapStyleWord(true);
+        getLogArea.setMargin(new Insets(4, 4, 4, 4));
+        JScrollPane scroll = new JScrollPane(getLogArea);
+        scroll.setPreferredSize(new Dimension(220, 180));
+        panel.add(scroll, BorderLayout.CENTER);
+
+        JButton clearLogBtn = new JButton("Clear log");
+        clearLogBtn.addActionListener(e -> getLogArea.setText(""));
+        panel.add(clearLogBtn, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private static final String[] COLOUR_OPTIONS = new String[] { "red", "blue", "green" };
+
     private JPanel createControlPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(WINDOW_BG);
         Border border = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BOARD_BORDER, 1),
@@ -138,8 +167,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         postYField = new JTextField(3);
         postBox.add(postYField);
         postBox.add(new JLabel("colour:"));
-        List<String> colours = java.util.Arrays.asList("red", "blue", "green");
-        colourCombo = new JComboBox<>(colours.toArray(new String[0]));
+        colourCombo = new JComboBox<>(COLOUR_OPTIONS);
         postBox.add(colourCombo);
         postBox.add(new JLabel("message:"));
         messageField = new JTextField(10);
@@ -149,21 +177,22 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         postBox.add(postBtn);
         panel.add(postBox);
 
-        // GET (RFC 7.2): retrieve notes. Optional filters: color=, contains=x y, refersTo=text. Criteria ANDed.
+        // GET (RFC 7.2): retrieve notes. Optional filters: colour, contains (x,y), message contains text.
         JPanel getBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         getBox.setBackground(WINDOW_BG);
         getBox.setBorder(BorderFactory.createTitledBorder(border, "GET notes (optional filters)", 0, 0, null, Color.DARK_GRAY));
         getBox.add(new JLabel("colour:"));
-        getColourField = new JTextField(4);
-        getBox.add(getColourField);
+        getColourCombo = new JComboBox<>(new String[] { "(all)", "red", "blue", "green" });
+        getBox.add(getColourCombo);
         getBox.add(new JLabel("contains x:"));
         getContainsXField = new JTextField(2);
         getBox.add(getContainsXField);
         getBox.add(new JLabel("y:"));
         getContainsYField = new JTextField(2);
         getBox.add(getContainsYField);
-        getBox.add(new JLabel("refersTo:"));
-        getRefersToField = new JTextField(5);
+        getBox.add(new JLabel("message contains:"));
+        getRefersToField = new JTextField(8);
+        getRefersToField.setToolTipText("Show only notes whose message contains this text");
         getBox.add(getRefersToField);
         JButton getBtn = new JButton("Get");
         getBtn.addActionListener(e -> handleGet());
@@ -271,23 +300,42 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private void handleGet() {
+        getWasUserInitiated = true;
         StringBuilder cmd = new StringBuilder(Protocol.CMD_GET);
-        String colorVal = getColourField.getText().trim();
-        if (!colorVal.isEmpty()) {
-            cmd.append(" ").append(Protocol.FILTER_COLOUR).append(colorVal);
-        }
+        StringBuilder filterDesc = new StringBuilder();
+        String colourVal = null;
+        try {
+            Object sel = getColourCombo.getSelectedItem();
+            if (sel != null && !"(all)".equals(sel.toString().trim())) {
+                colourVal = sel.toString().trim();
+                cmd.append(" ").append(Protocol.FILTER_COLOUR).append(colourVal);
+                if (filterDesc.length() > 0) filterDesc.append(" ");
+                filterDesc.append("colour=").append(colourVal);
+            }
+        } catch (Exception ignored) { }
         String cx = getContainsXField.getText().trim();
         String cy = getContainsYField.getText().trim();
         if (!cx.isEmpty() && !cy.isEmpty()) {
             cmd.append(" ").append(Protocol.FILTER_CONTAINS).append(cx).append(" ").append(cy);
+            if (filterDesc.length() > 0) filterDesc.append(" ");
+            filterDesc.append("contains=").append(cx).append(",").append(cy);
         }
         String refers = getRefersToField.getText().trim();
         if (!refers.isEmpty()) {
             cmd.append(" ").append(Protocol.FILTER_REFERS_TO).append(refers);
+            if (filterDesc.length() > 0) filterDesc.append(" ");
+            filterDesc.append("refersTo=\"").append(refers).append("\"");
         }
-        lastSentCommand = "GET";
-        if (connection.sendCommand(cmd.toString().trim())) {
-            showStatus("Getting notes...");
+        String getCmd = cmd.toString().trim();
+        if (filterDesc.length() > 0) {
+            lastSentCommand = "GET_FILTERED";
+            lastGetFilterDescription = filterDesc.toString();
+        } else {
+            lastSentCommand = "GET";
+            lastGetFilterDescription = null;
+        }
+        if (connection.sendCommand(getCmd)) {
+            showStatus("Refreshing board...");
         }
     }
 
@@ -365,13 +413,23 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     @Override
     public void onOkResponse(String remainder) {
-        if ("GET".equals(lastSentCommand)) {
+        if ("GET_FILTERED".equals(lastSentCommand)) {
+            appendGetLogFromServerFiltered(lastGetFilterDescription, remainder);
+            lastSentCommand = "GET";
+            connection.sendCommand(Protocol.CMD_GET);
+        } else if ("GET".equals(lastSentCommand)) {
             applyNotesFromGetResponse(remainder);
             lastSentCommand = "GET_PINS";
             connection.sendCommand(Protocol.CMD_GET + " " + Protocol.GET_PINS);
         } else if ("GET_PINS".equals(lastSentCommand)) {
             int pinCount = applyPinsFromGetPinsResponse(remainder);
-            showStatus("GET done: " + lastGetNoteCount + " note(s), " + pinCount + " pin(s) on board.");
+            if (getWasUserInitiated) {
+                showGetSuccess(lastGetNoteCount, pinCount);
+                appendGetLogFullBoard(lastGetNoteCount, pinCount);
+                getWasUserInitiated = false;
+            } else {
+                showStatus("Done.");
+            }
             lastSentCommand = "";
         } else if (Protocol.CMD_POST.equals(lastSentCommand) || Protocol.CMD_PIN.equals(lastSentCommand)
                 || Protocol.CMD_UNPIN.equals(lastSentCommand) || Protocol.CMD_SHAKE.equals(lastSentCommand)
@@ -385,6 +443,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private void refreshBoard() {
+        getWasUserInitiated = false;
         lastSentCommand = "GET";
         connection.sendCommand(Protocol.CMD_GET);
     }
@@ -509,6 +568,83 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     public void showStatus(String message) {
         statusLabel.setText(message);
         statusLabel.setForeground(Color.BLACK);
+        statusLabel.setOpaque(false);
+        statusLabel.setBackground(null);
+    }
+
+    private void showGetSuccess(int noteCount, int pinCount) {
+        statusLabel.setOpaque(true);
+        statusLabel.setBackground(new Color(200, 255, 200));
+        statusLabel.setForeground(new Color(0, 120, 0));
+        statusLabel.setText(" ✓ Board updated — " + noteCount + " note(s), " + pinCount + " pin(s)");
+        Timer t = new Timer(2500, e -> {
+            statusLabel.setOpaque(false);
+            statusLabel.setBackground(null);
+            statusLabel.setForeground(Color.BLACK);
+            statusLabel.setText("Ready.");
+        });
+        t.setRepeats(false);
+        t.start();
+    }
+
+    /** Log entry from server filtered GET response (filtering done on backend). */
+    private void appendGetLogFromServerFiltered(String filterDescription, String remainder) {
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        List<String> noteEntries = new ArrayList<>();
+        if (remainder != null && !remainder.trim().isEmpty()) {
+            for (String seg : remainder.split("\\" + Protocol.LIST_SEPARATOR)) {
+                seg = seg.trim();
+                if (seg.isEmpty()) continue;
+                String[] parts = seg.split("\\s+", 4);
+                if (parts.length >= 3) {
+                    String msg = parts.length > 3 ? parts[3] : "";
+                    if (msg.length() > 15) msg = msg.substring(0, 12) + "...";
+                    noteEntries.add("(" + parts[0] + "," + parts[1] + ") " + parts[2] + " \"" + msg + "\"");
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(time).append("] GET (filter: ").append(filterDescription).append(") — ")
+          .append(noteEntries.size()).append(" note(s) from server\n");
+        if (noteEntries.isEmpty()) {
+            sb.append("  (none)\n");
+        } else {
+            sb.append("  ").append(String.join("; ", noteEntries)).append("\n");
+        }
+        sb.append("\n");
+        getLogArea.append(sb.toString());
+        getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
+    }
+
+    /** Log entry for full board (no filter) after GET + GET_PINS. */
+    private void appendGetLogFullBoard(int noteCount, int pinCount) {
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(time).append("] GET — ").append(noteCount).append(" note(s), ").append(pinCount).append(" pin(s)\n");
+        if (!noteWidgets.isEmpty()) {
+            sb.append("  Notes: ");
+            for (int i = 0; i < noteWidgets.size(); i++) {
+                NoteWidget n = noteWidgets.get(i);
+                if (i > 0) sb.append("; ");
+                String msg = n.getMessage();
+                if (msg == null) msg = "";
+                if (msg.length() > 15) msg = msg.substring(0, 12) + "...";
+                sb.append("(").append(n.getX()).append(",").append(n.getY()).append(") \"").append(msg).append("\"");
+            }
+            sb.append("\n");
+        }
+        if (!pinWidgets.isEmpty()) {
+            sb.append("  Pins: ");
+            for (int i = 0; i < pinWidgets.size(); i++) {
+                PinWidget p = pinWidgets.get(i);
+                if (i > 0) sb.append("; ");
+                sb.append("(").append(p.getX()).append(",").append(p.getY()).append(")");
+            }
+            sb.append("\n");
+        }
+        sb.append("\n");
+        getLogArea.append(sb.toString());
+        getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 
     private void paintBoard(Graphics g) {

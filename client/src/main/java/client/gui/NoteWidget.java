@@ -23,6 +23,7 @@ public class NoteWidget extends JComponent {
     private int x;
     private int y;
     private Color colour;
+    private String colourName;
     private String message;
     private boolean isPinned;
     private int width;
@@ -45,6 +46,7 @@ public class NoteWidget extends JComponent {
         this.noteId = noteId;
         this.x = x;
         this.y = y;
+        this.colourName = colour == null ? "" : colour.trim();
         this.colour = getColourFromName(colour);
         this.message = message;
         this.isPinned = isPinned;
@@ -118,6 +120,24 @@ public class NoteWidget extends JComponent {
      */
     public int getY() {
         return y;
+    }
+
+    /**
+     * Gets the note's colour name (e.g. "red", "blue").
+     *
+     * @return The colour name
+     */
+    public String getColourName() {
+        return colourName != null ? colourName : "";
+    }
+
+    /**
+     * Gets the note's message text.
+     *
+     * @return The message text
+     */
+    public String getMessage() {
+        return message;
     }
 
     /**
