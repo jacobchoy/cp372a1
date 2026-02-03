@@ -1,8 +1,7 @@
 package client.gui;
 
-import client.utils.ColourUtils;
-
 import javax.swing.*;
+import shared.Colours;
 import java.awt.*;
 
 /**
@@ -13,7 +12,8 @@ import java.awt.*;
  * - The note's message text
  * - Visual indication if the note is pinned
  * - The note's position on the board
- * RFC Section 4.3: Note has position (x,y), colour, content, and pin status (derived).
+ * RFC Section 4.3: Note has position (x,y), colour, content, and pin status
+ * (derived).
  *
  * @author Jonathan Bilewicz
  * @version 1.0
@@ -22,7 +22,7 @@ public class NoteWidget extends JComponent {
     private String noteId;
     private int x;
     private int y;
-    private String colour;
+    private Color colour;
     private String message;
     private boolean isPinned;
     private int width;
@@ -30,7 +30,7 @@ public class NoteWidget extends JComponent {
 
     /**
      * Constructs a new NoteWidget.
-     *
+     * 
      * @param noteId   The unique identifier of the note
      * @param x        The x-coordinate of the note's upper-left corner
      * @param y        The y-coordinate of the note's upper-left corner
@@ -41,72 +41,117 @@ public class NoteWidget extends JComponent {
      * @param height   The height of the note
      */
     public NoteWidget(String noteId, int x, int y, String colour, String message,
-                      boolean isPinned, int width, int height) {
+            boolean isPinned, int width, int height) {
         this.noteId = noteId;
         this.x = x;
         this.y = y;
-        this.colour = colour;
-        this.message = message != null ? message : "";
+        this.colour = getColourFromName(colour);
+        this.message = message;
         this.isPinned = isPinned;
         this.width = width;
         this.height = height;
-        setOpaque(false);
-        setBounds(x, y, width, height);
-        setPreferredSize(new Dimension(width, height));
     }
 
+    /**
+     * Paints the note widget on the board.
+     * 
+     * @param g The Graphics object for drawing
+     */
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g.create();
-        Color c = ColourUtils.getColour(colour);
-        if (c == null) {
-            c = ColourUtils.getDefaultColour();
-        }
-        g2.setColor(c);
-        g2.fillRect(0, 0, width, height);
-        g2.setColor(Color.BLACK);
-        g2.drawRect(0, 0, width - 1, height - 1);
-        if (isPinned) {
-            g2.setColor(new Color(80, 80, 80));
-            g2.fillOval(width - 12, 2, 10, 10);
-        }
-        g2.setFont(getFont() != null ? getFont() : new Font("SansSerif", Font.PLAIN, 12));
-        FontMetrics fm = g2.getFontMetrics();
-        int lineHeight = fm.getAscent();
-        int yPos = lineHeight + 2;
-        String[] lines = message.split("\n");
-        for (String line : lines) {
-            if (yPos + fm.getDescent() > height) break;
-            g2.drawString(line.length() > 20 ? line.substring(0, 17) + "..." : line, 4, yPos);
-            yPos += lineHeight + 2;
-        }
-        g2.dispose();
+        g.setColor(colour);
+        g.fillRect(x, y, width, height);
     }
 
+    /**
+     * Gets the note's unique identifier.
+     * 
+     * @return The note ID
+     */
     public String getNoteId() {
         return noteId;
     }
 
+    /**
+     * Gets the x-coordinate of the note.
+     * 
+     * @return The x-coordinate
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Gets the y-coordinate of the note.
+     * 
+     * @return The y-coordinate
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     * Updates the note's message text.
+     * 
+     * @param message The new message text
+     */
     public void setMessage(String message) {
-        this.message = message != null ? message : "";
-        repaint();
+        this.message = message;
     }
 
+    /**
+     * Updates the note's pinned status.
+     * 
+     * @param isPinned The new pinned status
+     */
     public void setPinned(boolean isPinned) {
         this.isPinned = isPinned;
-        repaint();
     }
 
+    /**
+     * Checks if a point lies within this note's boundaries.
+     * 
+     * @param px The x-coordinate of the point
+     * @param py The y-coordinate of the point
+     * @return true if the point is inside the note, false otherwise
+     */
     public boolean containsPoint(int px, int py) {
-        return px >= x && px < x + width && py >= y && py < y + height;
+        return px >= x && px <= x + width && py >= y && py <= y + height;
+    }
+
+    /**
+     * Converts a colour name string to a Color object.
+     * 
+     * @param colourName The name of the colour
+     * @return The corresponding Color object, or Color.WHITE if not found
+     */
+    private Color getColourFromName(String colourName) {
+        if (colourName == null || colourName.trim().isEmpty()) {
+            return Colours.WHITE;
+        }
+
+        switch (colourName.toLowerCase()) {
+            case "red":
+                return Colours.RED;
+            case "orange":
+                return Colours.ORANGE;
+            case "yellow":
+                return Colours.YELLOW;
+            case "green":
+                return Colours.GREEN;
+            case "blue":
+                return Colours.BLUE;
+            case "purple":
+                return Colours.PURPLE;
+            case "pink":
+                return Colours.PINK;
+            case "gray":
+                return Colours.GRAY;
+            case "brown":
+                return Colours.BROWN;
+            default:
+                return Colours.WHITE;
+
+        }
     }
 }
