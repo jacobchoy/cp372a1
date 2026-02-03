@@ -15,64 +15,82 @@ import java.awt.*;
  * @version 1.0
  */
 public class PinWidget extends JComponent {
-    private String pinId;
-    private int x;
-    private int y;
-    private String noteId; // The note this pin belongs to
-    
+    /** Default size of the pin head in pixels. */
+    private static final int PIN_SIZE = 10;
+
+    private final String pinId;
+    private final int x;
+    private final int y;
+    private final String noteId;
+
     /**
      * Constructs a new PinWidget.
-     * 
-     * @param pinId The unique identifier of the pin
-     * @param x The x-coordinate of the pin
-     * @param y The y-coordinate of the pin
-     * @param noteId The ID of the note this pin belongs to
+     *
+     * @param pinId  The unique identifier of the pin
+     * @param x      The x-coordinate of the pin
+     * @param y      The y-coordinate of the pin
+     * @param noteId The ID of the note this pin belongs to (may be null)
      */
     public PinWidget(String pinId, int x, int y, String noteId) {
-        // Implementation will go here
+        this.pinId = pinId;
+        this.x = x;
+        this.y = y;
+        this.noteId = noteId;
+        setOpaque(false);
+        setSize(PIN_SIZE, PIN_SIZE);
+        setPreferredSize(new Dimension(PIN_SIZE, PIN_SIZE));
     }
-    
+
     /**
      * Paints the pin widget on the board.
-     * 
+     * Draws a small circle (pin head) with a dark fill and lighter highlight.
+     *
      * @param g The Graphics object for drawing
      */
     @Override
     protected void paintComponent(Graphics g) {
-        // Implementation will go here
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int s = PIN_SIZE;
+        g2.setColor(new Color(80, 80, 80));
+        g2.fillOval(0, 0, s, s);
+        g2.setColor(new Color(120, 120, 120));
+        g2.drawOval(0, 0, s - 1, s - 1);
+        g2.dispose();
     }
-    
+
     /**
      * Gets the pin's unique identifier.
-     * 
+     *
      * @return The pin ID
      */
     public String getPinId() {
         return pinId;
     }
-    
+
     /**
-     * Gets the x-coordinate of the pin.
-     * 
+     * Gets the x-coordinate of the pin on the board.
+     *
      * @return The x-coordinate
      */
     public int getX() {
         return x;
     }
-    
+
     /**
-     * Gets the y-coordinate of the pin.
-     * 
+     * Gets the y-coordinate of the pin on the board.
+     *
      * @return The y-coordinate
      */
     public int getY() {
         return y;
     }
-    
+
     /**
      * Gets the ID of the note this pin belongs to.
-     * 
-     * @return The note ID
+     *
+     * @return The note ID, or null if not associated
      */
     public String getNoteId() {
         return noteId;

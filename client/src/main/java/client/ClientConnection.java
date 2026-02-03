@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import javax.swing.SwingUtilities;
 import shared.Protocol;
 
 /**
@@ -30,6 +31,7 @@ public class ClientConnection {
     private String hostname;
     private int port;
     private boolean connected;
+    private ServerMessageListener messageListener;
 
     /**
      * Constructs a new ClientConnection.
@@ -116,6 +118,15 @@ public class ClientConnection {
     }
 
     /**
+     * Sets the listener to be notified of server messages (on the EDT).
+     *
+     * @param listener The listener, or null to clear
+     */
+    public void setServerMessageListener(ServerMessageListener listener) {
+        this.messageListener = listener;
+    }
+
+    /**
      * Starts a background thread to listen for server messages.
      * 
      * This thread continuously reads messages from the server and
@@ -150,27 +161,13 @@ public class ClientConnection {
         if (message.startsWith(Protocol.RESP_ERROR)) {
             String errorMsg = message.substring(Protocol.RESP_ERROR.length()).trim();
             System.err.println("Server Error: " + errorMsg);
-            // TODO: Notify GUI of error
+            if (messageListener != null) {
+                SwingUtilities.invokeLater(() -> messageListener.onError(errorMsg));
+            }
         } else if (message.startsWith(Protocol.RESP_OK)) {
             String remainder = message.substring(Protocol.RESP_OK.length()).trim();
-
-            if (remainder.isEmpty()) {
-                // General OK response
-                System.out.println("Operation successful");
-            } else if (remainder.startsWith(Protocol.RESP_BOARD)) {
-                // Handle BOARD response
-                System.out.println("Received Board Update: " + remainder);
-                // TODO: Parse board data and update GUI
-            } else if (remainder.startsWith(Protocol.RESP_NOTE)) {
-                // Handle NOTE response
-                System.out.println("Received Note: " + remainder);
-                // TODO: Parse note data and update GUI
-            } else if (remainder.startsWith(Protocol.RESP_COLOURS)) {
-                // Handle COLOURS response
-                System.out.println("Received Colours: " + remainder);
-                // TODO: Parse colours and update GUI
-            } else {
-                System.out.println("Received OK with parameters: " + remainder);
+            if (messageListener != null) {
+                SwingUtilities.invokeLater(() -> messageListener.onOkResponse(remainder));
             }
         } else {
             System.out.println("Received unknown message: " + message);
