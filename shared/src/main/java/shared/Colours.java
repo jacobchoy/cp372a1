@@ -23,29 +23,15 @@ public class Colours {
      */
     public static final List<String> AVAILABLE_COLOURS = Arrays.asList(
             "RED",
-            "ORANGE",
-            "YELLOW",
-            "GREEN",
             "BLUE",
-            "PURPLE",
-            "PINK",
-            "WHITE",
-            "GRAY",
-            "BROWN");
+            "GREEN");
 
     /*
      * Color constants corresponding to the available colours.
      */
     public static final Color RED = Color.RED;
-    public static final Color ORANGE = Color.ORANGE;
-    public static final Color YELLOW = Color.YELLOW;
     public static final Color GREEN = Color.GREEN;
     public static final Color BLUE = Color.BLUE;
-    public static final Color PURPLE = new Color(128, 0, 128);
-    public static final Color PINK = Color.PINK;
-    public static final Color WHITE = Color.WHITE;
-    public static final Color GRAY = Color.GRAY;
-    public static final Color BROWN = new Color(165, 42, 42);
 
     /**
      * Gets the list of available colour names.
@@ -76,7 +62,7 @@ public class Colours {
      * @return The default colour name
      */
     public static String getDefaultColour() {
-        return "WHITE";
+        return "RED";
     }
 
     /**

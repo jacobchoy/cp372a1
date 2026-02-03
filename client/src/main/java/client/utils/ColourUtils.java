@@ -9,8 +9,10 @@ import java.util.Map;
 /**
  * Utility class for GUI colour operations.
  * 
- * Converts colour name strings (from {@link shared.Colours}) to AWT Color for rendering.
- * For the list of valid colours use {@link shared.Colours#getAvailableColours()};
+ * Converts colour name strings (from {@link shared.Colours}) to AWT Color for
+ * rendering.
+ * For the list of valid colours use
+ * {@link shared.Colours#getAvailableColours()};
  * for the default colour name use {@link shared.Colours#getDefaultColour()}.
  *
  * @author Jonathan Bilewicz
@@ -18,7 +20,7 @@ import java.util.Map;
  */
 public class ColourUtils {
     private static final Map<String, Color> colourMap = new HashMap<>();
-    
+
     /**
      * Initializes the colour map with predefined colours.
      * Keys are lowercase for case-insensitive lookup.
@@ -27,14 +29,6 @@ public class ColourUtils {
         colourMap.put("red", Color.RED);
         colourMap.put("green", Color.GREEN);
         colourMap.put("blue", Color.BLUE);
-        colourMap.put("yellow", Color.YELLOW);
-        colourMap.put("purple", Color.MAGENTA);
-        colourMap.put("pink", Color.PINK);
-        colourMap.put("white", Color.WHITE);
-        colourMap.put("gray", Color.GRAY);
-        colourMap.put("brown", Colours.BROWN);
-        colourMap.put("orange", Color.ORANGE);
-
     }
 
     /**
@@ -49,7 +43,7 @@ public class ColourUtils {
         }
         return colourMap.get(colourName.trim().toLowerCase());
     }
-    
+
     /**
      * Gets the default AWT Color when a colour is not specified (converts
      * {@link shared.Colours#getDefaultColour()} to a Color for painting).
@@ -58,6 +52,6 @@ public class ColourUtils {
      */
     public static Color getDefaultColour() {
         Color c = getColour(Colours.getDefaultColour());
-        return c != null ? c : Color.WHITE;
+        return c != null ? c : Color.RED;
     }
 }

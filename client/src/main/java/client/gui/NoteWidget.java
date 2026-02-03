@@ -76,16 +76,34 @@ public class NoteWidget extends JComponent {
                 // Truncate with ellipsis
                 for (int i = message.length(); i > 0; i--) {
                     toDraw = message.substring(0, i) + "...";
-                    if (fm.stringWidth(toDraw) <= width - 2 * padding) break;
+                    if (fm.stringWidth(toDraw) <= width - 2 * padding)
+                        break;
                 }
             }
             int x = padding;
             int y = (height + fm.getAscent()) / 2 - 2;
             g.drawString(toDraw, x, y);
         }
-        // Optional: thin border so note edges are clear
+        // Border: darker if pinned, or just regular border
         g.setColor(colour.darker());
         g.drawRect(0, 0, width - 1, height - 1);
+
+        // Visual pin indicator if pinned
+        if (isPinned) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int s = 10;
+            int px = (width - s) / 2;
+            int py = 4;
+            // Red pin head
+            g2.setColor(new Color(200, 50, 50));
+            g2.fillOval(px, py, s, s);
+            g2.setColor(new Color(120, 25, 25));
+            g2.drawOval(px, py, s - 1, s - 1);
+            g2.setColor(new Color(255, 180, 180));
+            g2.fillOval(px + 2, py + 2, 3, 3);
+            g2.dispose();
+        }
     }
 
     /** Pick a readable text colour against the note background. */
@@ -159,6 +177,15 @@ public class NoteWidget extends JComponent {
     }
 
     /**
+     * Checks if the note is pinned.
+     * 
+     * @return true if pinned, false otherwise
+     */
+    public boolean isPinned() {
+        return isPinned;
+    }
+
+    /**
      * Checks if a point lies within this note's boundaries.
      * 
      * @param px The x-coordinate of the point
@@ -177,30 +204,18 @@ public class NoteWidget extends JComponent {
      */
     private Color getColourFromName(String colourName) {
         if (colourName == null || colourName.trim().isEmpty()) {
-            return Colours.WHITE;
+            return Colours.RED;
         }
 
         switch (colourName.toLowerCase()) {
             case "red":
                 return Colours.RED;
-            case "orange":
-                return Colours.ORANGE;
-            case "yellow":
-                return Colours.YELLOW;
             case "green":
                 return Colours.GREEN;
             case "blue":
                 return Colours.BLUE;
-            case "purple":
-                return Colours.PURPLE;
-            case "pink":
-                return Colours.PINK;
-            case "gray":
-                return Colours.GRAY;
-            case "brown":
-                return Colours.BROWN;
             default:
-                return Colours.WHITE;
+                return Colours.RED;
         }
     }
 }
