@@ -2,6 +2,7 @@ package shared;
 
 import java.util.Arrays;
 import java.util.List;
+import java.awt.Color;
 
 /**
  * Shared colour list for the Bulletin Board System.
@@ -21,18 +22,31 @@ public class Colours {
      * Color objects by the client GUI.
      */
     public static final List<String> AVAILABLE_COLOURS = Arrays.asList(
-        "RED",
-        "ORANGE",
-        "YELLOW",
-        "GREEN",
-        "BLUE",
-        "PURPLE",
-        "PINK",
-        "WHITE",
-        "GRAY",
-        "BROWN"
-    );
-    
+            "RED",
+            "ORANGE",
+            "YELLOW",
+            "GREEN",
+            "BLUE",
+            "PURPLE",
+            "PINK",
+            "WHITE",
+            "GRAY",
+            "BROWN");
+
+    /*
+     * Color constants corresponding to the available colours.
+     */
+    public static final Color RED = Color.RED;
+    public static final Color ORANGE = Color.ORANGE;
+    public static final Color YELLOW = Color.YELLOW;
+    public static final Color GREEN = Color.GREEN;
+    public static final Color BLUE = Color.BLUE;
+    public static final Color PURPLE = new Color(128, 0, 128);
+    public static final Color PINK = Color.PINK;
+    public static final Color WHITE = Color.WHITE;
+    public static final Color GRAY = Color.GRAY;
+    public static final Color BROWN = new Color(165, 42, 42);
+
     /**
      * Gets the list of available colour names.
      * 
@@ -41,7 +55,7 @@ public class Colours {
     public static List<String> getAvailableColours() {
         return AVAILABLE_COLOURS;
     }
-    
+
     /**
      * Checks if a colour name is valid (exists in the predefined list).
      * 
@@ -55,7 +69,7 @@ public class Colours {
         return AVAILABLE_COLOURS.stream()
                 .anyMatch(colour -> colour.equalsIgnoreCase(colourName));
     }
-    
+
     /**
      * Gets the default colour name.
      * 
@@ -64,7 +78,7 @@ public class Colours {
     public static String getDefaultColour() {
         return "WHITE";
     }
-    
+
     /**
      * Private constructor to prevent instantiation.
      */
