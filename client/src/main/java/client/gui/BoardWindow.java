@@ -8,9 +8,7 @@ import shared.Protocol;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Main GUI window for the bulletin board client.
@@ -33,6 +31,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private final int boardHeight;
     private final int noteWidth;
     private final int noteHeight;
+    private final List<String> availableColours;
 
     private JPanel boardPanel;
     private final List<NoteWidget> noteWidgets = new ArrayList<>();
@@ -54,18 +53,21 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private JTextField unpinYField;
 
     public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight,
-                       int noteWidth, int noteHeight) {
+                       int noteWidth, int noteHeight, List<String> availableColours) {
         this.connection = connection;
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         this.noteWidth = noteWidth;
         this.noteHeight = noteHeight;
+        this.availableColours = availableColours;
 
         setTitle("Bulletin Board");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initializeGUI();
         connection.setServerMessageListener(this);
+        // Load current board state as soon as window is ready
+        refreshBoard();
     }
 
     private void initializeGUI() {
@@ -95,7 +97,17 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         postYField.setToolTipText("y");
         panel.add(postXField);
         panel.add(postYField);
-        colourCombo = new JComboBox<>(Colours.getAvailableColours().toArray(new String[0]));
+        // Use server's colour list so POST works; fallback to lowercase defaults so they match typical server (e.g. "red")
+        List<String> colours;
+        if (availableColours != null && !availableColours.isEmpty()) {
+            colours = availableColours;
+        } else {
+            colours = new ArrayList<>();
+            for (String c : Colours.getAvailableColours()) {
+                colours.add(c.toLowerCase());
+            }
+        }
+        colourCombo = new JComboBox<>(colours.toArray(new String[0]));
         panel.add(colourCombo);
         messageField = new JTextField(15);
         messageField.setToolTipText("Message");
@@ -181,10 +193,18 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             showError("Enter x and y for POST");
             return;
         }
+        if (message == null || message.trim().isEmpty()) {
+            showError("Enter a message for POST");
+            return;
+        }
+        if (colour == null || colour.trim().isEmpty()) {
+            showError("Select a colour for POST");
+            return;
+        }
         try {
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
-            String cmd = Protocol.CMD_POST + " " + x + " " + y + " " + colour + " " + (message != null ? message : "");
+            String cmd = Protocol.CMD_POST + " " + x + " " + y + " " + colour.trim() + " " + message.trim();
             lastSentCommand = Protocol.CMD_POST;
             if (connection.sendCommand(cmd)) {
                 showStatus("Posting note...");
@@ -373,8 +393,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private boolean isNotePinned(int noteX, int noteY) {
         for (PinWidget p : pinWidgets) {
-            int px = p.getX();
-            int py = p.getY();
+            int px = p.getBoardX();
+            int py = p.getBoardY();
             if (px >= noteX && px < noteX + noteWidth && py >= noteY && py < noteY + noteHeight) {
                 return true;
             }
@@ -384,18 +404,18 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void updateNotePinnedState() {
         for (NoteWidget n : noteWidgets) {
-            n.setPinned(isNotePinned(n.getX(), n.getY()));
+            n.setPinned(isNotePinned(n.getBoardX(), n.getBoardY()));
         }
     }
 
     private void repaintBoard() {
         boardPanel.removeAll();
         for (NoteWidget w : noteWidgets) {
-            w.setBounds(w.getX(), w.getY(), noteWidth, noteHeight);
+            w.setBounds(w.getBoardX(), w.getBoardY(), noteWidth, noteHeight);
             boardPanel.add(w);
         }
         for (PinWidget w : pinWidgets) {
-            w.setBounds(w.getX(), w.getY(), 10, 10);
+            w.setBounds(w.getBoardX(), w.getBoardY(), 10, 10);
             boardPanel.add(w);
         }
         boardPanel.revalidate();
@@ -409,7 +429,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     public void addNoteWidget(NoteWidget noteWidget) {
         noteWidgets.add(noteWidget);
         boardPanel.add(noteWidget);
-        noteWidget.setBounds(noteWidget.getX(), noteWidget.getY(), noteWidth, noteHeight);
+        noteWidget.setBounds(noteWidget.getBoardX(), noteWidget.getBoardY(), noteWidth, noteHeight);
         boardPanel.revalidate();
         boardPanel.repaint();
     }
