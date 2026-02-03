@@ -71,31 +71,35 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         refreshBoard();
     }
 
+    private static final Color WINDOW_BG = new Color(245, 245, 247);
+    private static final Color BOARD_BG = Color.WHITE;
+    private static final Color BOARD_BORDER = new Color(220, 220, 224);
+
     private void initializeGUI() {
         setLayout(new BorderLayout(5, 5));
-        getContentPane().setBackground(new Color(230, 230, 235));
+        getContentPane().setBackground(WINDOW_BG);
 
         JPanel controls = createControlPanel();
-        controls.setBackground(new Color(230, 230, 235));
+        controls.setBackground(WINDOW_BG);
         add(controls, BorderLayout.NORTH);
 
         boardPanel = createBoardPanel();
         JScrollPane scrollPane = new JScrollPane(boardPanel);
-        scrollPane.setBackground(new Color(230, 230, 235));
-        scrollPane.getViewport().setBackground(new Color(230, 230, 235));
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 185), 1));
+        scrollPane.setBackground(WINDOW_BG);
+        scrollPane.getViewport().setBackground(WINDOW_BG);
+        scrollPane.setBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1));
         add(scrollPane, BorderLayout.CENTER);
 
         JPanel infoPanel = createBoardInfoPanel();
-        infoPanel.setBackground(new Color(230, 230, 235));
+        infoPanel.setBackground(WINDOW_BG);
         add(infoPanel, BorderLayout.EAST);
 
         statusLabel = new JLabel("Ready.");
-        statusLabel.setBackground(new Color(230, 230, 235));
+        statusLabel.setBackground(WINDOW_BG);
         add(statusLabel, BorderLayout.SOUTH);
 
         pack();
-        int windowWidth = Math.max(boardWidth + 220, 950);
+        int windowWidth = Math.max(boardWidth + 220, 1450);
         int windowHeight = boardHeight + 200;
         setSize(windowWidth, windowHeight);
         setMinimumSize(new Dimension(windowWidth, windowHeight));
@@ -103,27 +107,16 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private JPanel createBoardInfoPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Board info"));
-        panel.setPreferredSize(new Dimension(200, 0));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        panel.setPreferredSize(new Dimension(160, 0));
+        panel.setBackground(WINDOW_BG);
 
         int endX = Math.max(0, boardWidth - 1);
         int endY = Math.max(0, boardHeight - 1);
-
-        panel.add(new JLabel("Bulletin board size:"));
-        panel.add(new JLabel("  " + boardWidth + " × " + boardHeight));
-        panel.add(Box.createVerticalStrut(8));
-        panel.add(new JLabel("Note size:"));
-        panel.add(new JLabel("  " + noteWidth + " × " + noteHeight));
-        panel.add(Box.createVerticalStrut(8));
-        panel.add(new JLabel("Board coordinates:"));
-        panel.add(new JLabel("  X: 0 to " + endX));
-        panel.add(new JLabel("  Y: 0 to " + endY));
-        panel.add(new JLabel("  (0,0) top-left"));
-        panel.add(new JLabel("  (" + endX + "," + endY + ") bottom-right"));
-
-        panel.add(Box.createVerticalGlue());
+        JLabel info = new JLabel("<html>Board: " + boardWidth + "×" + boardHeight + "<br>Note: " + noteWidth + "×" + noteHeight + "<br>Coords: (0,0)–(" + endX + "," + endY + ")</html>");
+        info.setBackground(WINDOW_BG);
+        panel.add(info);
         return panel;
     }
 
@@ -490,10 +483,9 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     }
 
     private void paintBoard(Graphics g) {
-        Color boardFill = new Color(252, 252, 254);
-        g.setColor(boardFill);
+        g.setColor(BOARD_BG);
         g.fillRect(0, 0, boardWidth, boardHeight);
-        g.setColor(new Color(200, 200, 205));
+        g.setColor(BOARD_BORDER);
         g.drawRect(0, 0, boardWidth - 1, boardHeight - 1);
     }
 }
