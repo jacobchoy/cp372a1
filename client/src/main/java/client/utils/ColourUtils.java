@@ -27,6 +27,13 @@ public class ColourUtils {
         colourMap.put("red", Color.RED);
         colourMap.put("green", Color.GREEN);
         colourMap.put("blue", Color.BLUE);
+        colourMap.put("yellow", Color.YELLOW);
+        colourMap.put("purple", Color.MAGENTA);
+        colourMap.put("pink", Color.PINK);
+        colourMap.put("white", Color.WHITE);
+        colourMap.put("gray", Color.GRAY);
+        colourMap.put("brown", Color.BROWN);
+        colourMap.put("orange", Color.ORANGE);
 
     }
 
