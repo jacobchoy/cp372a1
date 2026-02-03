@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import shared.Protocol;
+import utils.ProtocolParser;
 
 /**
  * Handles communication with a single client connection.
@@ -34,7 +35,7 @@ public class ClientHandler implements Runnable {
     private BulletinBoard bulletinBoard;
     private BufferedReader in;
     private PrintWriter out;
-    private ProtocolParser parser;
+
     public int idGen;
     private List<String> validColours;
 
@@ -49,7 +50,7 @@ public class ClientHandler implements Runnable {
         this.clientSocket = clientSocket;
         this.bulletinBoard = bulletinBoard;
         this.validColours = validColours;
-        this.parser = new ProtocolParser();
+
     }
 
     /**
@@ -108,13 +109,13 @@ public class ClientHandler implements Runnable {
      * @param command The command string received from the client
      */
     private void processCommand(String command) {
-        if (!parser.isValidCommand(command)) {
+        if (!ProtocolParser.isValidCommand(command)) {
             out.println(Protocol.RESP_ERROR + " " + Protocol.ERR_UNKNOWN_COMMAND + " Unknown command");
             return;
         }
 
-        String commandType = parser.parseCommandType(command);
-        String params = parser.parseParameters(command);
+        String commandType = ProtocolParser.parseCommandType(command);
+        String params = ProtocolParser.parseParameters(command);
         String response = "";
 
         try {
@@ -159,7 +160,7 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handlePostNote(String params) {
-        String[] parts = parser.parsePostCommand(params);
+        String[] parts = ProtocolParser.parsePostCommand(params);
         if (parts == null) {
             return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid POST format";
         }
@@ -212,7 +213,7 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handleGet(String params) {
-        String parsed = parser.parseGetCommand(params);
+        String parsed = ProtocolParser.parseGetCommand(params);
         if (parsed == null) {
             return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid GET format";
         }
@@ -261,7 +262,7 @@ public class ClientHandler implements Runnable {
      * @return The response message with matching notes as "x y colour content;..."
      */
     private String handleGetWithFilters(String params) {
-        Map<String, String> filters = parser.parseGetFilters(params);
+        Map<String, String> filters = ProtocolParser.parseGetFilters(params);
         if (filters == null) {
             return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid filter format";
         }
@@ -336,7 +337,7 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handlePin(String params) {
-        String[] parts = parser.parsePinCommand(params);
+        String[] parts = ProtocolParser.parsePinCommand(params);
         if (parts == null) {
             return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid PIN format";
         }
@@ -365,7 +366,7 @@ public class ClientHandler implements Runnable {
      * @return The response message to send to the client
      */
     private String handleUnpin(String params) {
-        String[] parts = parser.parseUnpinCommand(params);
+        String[] parts = ProtocolParser.parseUnpinCommand(params);
         if (parts == null) {
             return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Invalid UNPIN format";
         }

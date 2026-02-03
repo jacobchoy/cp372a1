@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import shared.Protocol;
+
 /**
  * Manages the TCP connection to the server.
  * 
@@ -15,7 +17,8 @@ import java.net.Socket;
  * - Receiving responses from the server
  * - Parsing server messages
  * - Notifying the GUI of state changes
- * RFC Section 5.2: Client MUST wait to send a new command until it has received the response to the previous command.
+ * RFC Section 5.2: Client MUST wait to send a new command until it has received
+ * the response to the previous command.
  *
  * @author Jonathan Bilewicz
  * @version 1.0
@@ -27,34 +30,50 @@ public class ClientConnection {
     private String hostname;
     private int port;
     private boolean connected;
-    
+
     /**
      * Constructs a new ClientConnection.
      * 
      * @param hostname The server hostname or IP address
-     * @param port The server port number
+     * @param port     The server port number
      */
     public ClientConnection(String hostname, int port) {
-        // Implementation will go here
+        this.hostname = hostname;
+        this.port = port;
+        this.connected = false;
     }
-    
+
     /**
      * Establishes a connection to the server.
      * 
      * @return true if connection was successful, false otherwise
      */
     public boolean connect() {
-        // Implementation will go here
-        return false;
+        try {
+            Socket ClientSocket = new Socket(hostname, port);
+            this.socket = ClientSocket;
+            this.in = new BufferedReader(new InputStreamReader(ClientSocket.getInputStream()));
+            this.out = new PrintWriter(ClientSocket.getOutputStream(), true);
+            this.connected = true;
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error connecting to the server: " + e.getMessage());
+            return false;
+        }
     }
-    
+
     /**
      * Closes the connection to the server.
      */
     public void disconnect() {
-        // Implementation will go here
+        try {
+            socket.close();
+            this.connected = false;
+        } catch (IOException e) {
+            System.err.println("Error disconnecting from the server: " + e.getMessage());
+        }
     }
-    
+
     /**
      * Sends a command to the server.
      * 
@@ -62,10 +81,15 @@ public class ClientConnection {
      * @return true if the command was sent successfully, false otherwise
      */
     public boolean sendCommand(String command) {
-        // Implementation will go here
-        return false;
+        try {
+            out.println(command);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error sending command to the server: " + e.getMessage());
+            return false;
+        }
     }
-    
+
     /**
      * Receives a response from the server.
      * 
@@ -74,10 +98,14 @@ public class ClientConnection {
      * @return The response string from the server, or null if connection closed
      */
     public String receiveResponse() {
-        // Implementation will go here
-        return null;
+        try {
+            return in.readLine();
+        } catch (IOException e) {
+            System.err.println("Error receiving response from the server: " + e.getMessage());
+            return null;
+        }
     }
-    
+
     /**
      * Checks if the client is currently connected to the server.
      * 
@@ -86,7 +114,7 @@ public class ClientConnection {
     public boolean isConnected() {
         return connected;
     }
-    
+
     /**
      * Starts a background thread to listen for server messages.
      * 
@@ -94,9 +122,19 @@ public class ClientConnection {
      * notifies the GUI of updates (e.g., new notes, deleted notes).
      */
     public void startListening() {
-        // Implementation will go here
+        Thread listenerThread = new Thread(() -> {
+            try {
+                String message;
+                while ((message = in.readLine()) != null) {
+                    handleServerMessage(message);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading from the server: " + e.getMessage());
+            }
+        });
+        listenerThread.start();
     }
-    
+
     /**
      * Handles an incoming message from the server.
      * 
@@ -105,6 +143,37 @@ public class ClientConnection {
      * @param message The message received from the server
      */
     private void handleServerMessage(String message) {
-        // Implementation will go here
+        if (message == null || message.trim().isEmpty()) {
+            return;
+        }
+
+        if (message.startsWith(Protocol.RESP_ERROR)) {
+            String errorMsg = message.substring(Protocol.RESP_ERROR.length()).trim();
+            System.err.println("Server Error: " + errorMsg);
+            // TODO: Notify GUI of error
+        } else if (message.startsWith(Protocol.RESP_OK)) {
+            String remainder = message.substring(Protocol.RESP_OK.length()).trim();
+
+            if (remainder.isEmpty()) {
+                // General OK response
+                System.out.println("Operation successful");
+            } else if (remainder.startsWith(Protocol.RESP_BOARD)) {
+                // Handle BOARD response
+                System.out.println("Received Board Update: " + remainder);
+                // TODO: Parse board data and update GUI
+            } else if (remainder.startsWith(Protocol.RESP_NOTE)) {
+                // Handle NOTE response
+                System.out.println("Received Note: " + remainder);
+                // TODO: Parse note data and update GUI
+            } else if (remainder.startsWith(Protocol.RESP_COLOURS)) {
+                // Handle COLOURS response
+                System.out.println("Received Colours: " + remainder);
+                // TODO: Parse colours and update GUI
+            } else {
+                System.out.println("Received OK with parameters: " + remainder);
+            }
+        } else {
+            System.out.println("Received unknown message: " + message);
+        }
     }
 }

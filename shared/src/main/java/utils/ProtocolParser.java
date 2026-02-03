@@ -1,4 +1,4 @@
-package server;
+package utils;
 
 import shared.Protocol;
 
@@ -25,15 +25,23 @@ public class ProtocolParser {
      * @return The command type (POST, GET, PIN, UNPIN, SHAKE, CLEAR, DISCONNECT) or
      *         null if invalid
      */
-    public String parseCommandType(String command) {
-        if (command == null) return null;
-        if (command.startsWith(Protocol.CMD_POST)) return Protocol.CMD_POST;
-        if (command.startsWith(Protocol.CMD_GET)) return Protocol.CMD_GET;
-        if (command.startsWith(Protocol.CMD_PIN)) return Protocol.CMD_PIN;
-        if (command.startsWith(Protocol.CMD_UNPIN)) return Protocol.CMD_UNPIN;
-        if (command.startsWith(Protocol.CMD_SHAKE)) return Protocol.CMD_SHAKE;
-        if (command.startsWith(Protocol.CMD_CLEAR)) return Protocol.CMD_CLEAR;
-        if (command.startsWith(Protocol.CMD_DISCONNECT)) return Protocol.CMD_DISCONNECT;
+    public static String parseCommandType(String command) {
+        if (command == null)
+            return null;
+        if (command.startsWith(Protocol.CMD_POST))
+            return Protocol.CMD_POST;
+        if (command.startsWith(Protocol.CMD_GET))
+            return Protocol.CMD_GET;
+        if (command.startsWith(Protocol.CMD_PIN))
+            return Protocol.CMD_PIN;
+        if (command.startsWith(Protocol.CMD_UNPIN))
+            return Protocol.CMD_UNPIN;
+        if (command.startsWith(Protocol.CMD_SHAKE))
+            return Protocol.CMD_SHAKE;
+        if (command.startsWith(Protocol.CMD_CLEAR))
+            return Protocol.CMD_CLEAR;
+        if (command.startsWith(Protocol.CMD_DISCONNECT))
+            return Protocol.CMD_DISCONNECT;
         return null;
     }
 
@@ -43,7 +51,7 @@ public class ProtocolParser {
      * @param command The raw command string from the client
      * @return The parameter portion of the command, or empty string if none
      */
-    public String parseParameters(String command) {
+    public static String parseParameters(String command) {
         if (command.startsWith(Protocol.CMD_POST)) {
             return command.substring(Protocol.CMD_POST.length()).trim();
         } else if (command.startsWith(Protocol.CMD_GET)) {
@@ -69,7 +77,7 @@ public class ProtocolParser {
      * @param params The parameter string from the POST command
      * @return An array containing [x, y, colour, message] or null if invalid
      */
-    public String[] parsePostCommand(String params) {
+    public static String[] parsePostCommand(String params) {
         if (params == null || params.trim().isEmpty())
             return null;
         String[] parts = params.trim().split(Protocol.DELIMITER, 4);
@@ -89,7 +97,7 @@ public class ProtocolParser {
      * @return Protocol.GET_PINS ("PINS") if GET PINS, or the full filter string for
      *         GET with filters; null if empty/invalid
      */
-    public String parseGetCommand(String params) {
+    public static String parseGetCommand(String params) {
         if (params == null)
             return null;
         String trimmed = params.trim();
@@ -108,7 +116,7 @@ public class ProtocolParser {
      * @param params The filter parameter string
      * @return A map or object containing parsed filter criteria, or null if invalid
      */
-    public java.util.Map<String, String> parseGetFilters(String params) {
+    public static java.util.Map<String, String> parseGetFilters(String params) {
         if (params == null)
             return null;
         String trimmed = params.trim();
@@ -136,7 +144,7 @@ public class ProtocolParser {
      * @param params The parameter string from the PIN command
      * @return An array containing [x, y] as strings, or null if invalid
      */
-    public String[] parsePinCommand(String params) {
+    public static String[] parsePinCommand(String params) {
         if (params == null)
             return null;
         String trimmed = params.trim();
@@ -156,8 +164,9 @@ public class ProtocolParser {
      * @param params The parameter string from the UNPIN command
      * @return An array containing [x, y] as strings, or null if invalid
      */
-    public String[] parseUnpinCommand(String params) {
-        if (params == null) return null;
+    public static String[] parseUnpinCommand(String params) {
+        if (params == null)
+            return null;
         String trimmed = params.trim();
         if (trimmed.isEmpty())
             return null;
@@ -173,7 +182,7 @@ public class ProtocolParser {
      * @param command The command string to validate
      * @return true if the command is valid, false otherwise
      */
-    public boolean isValidCommand(String command) {
+    public static boolean isValidCommand(String command) {
         if (command == null)
             return false;
         String trimmed = command.trim();
@@ -198,7 +207,7 @@ public class ProtocolParser {
      * @param message   The human-readable message
      * @return A formatted ERROR response line
      */
-    public String generateErrorMessage(String errorCode, String message) {
+    public static String generateErrorMessage(String errorCode, String message) {
         return shared.Message.buildErrorResponse(errorCode, message != null ? message : "");
     }
 }
