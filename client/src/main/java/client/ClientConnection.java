@@ -52,10 +52,10 @@ public class ClientConnection {
      */
     public boolean connect() {
         try {
-            Socket ClientSocket = new Socket(hostname, port);
-            this.socket = ClientSocket;
-            this.in = new BufferedReader(new InputStreamReader(ClientSocket.getInputStream()));
-            this.out = new PrintWriter(ClientSocket.getOutputStream(), true);
+            Socket clientSocket = new Socket(hostname, port);
+            this.socket = clientSocket;
+            this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            this.out = new PrintWriter(clientSocket.getOutputStream(), true);
             this.connected = true;
             return true;
         } catch (IOException e) {

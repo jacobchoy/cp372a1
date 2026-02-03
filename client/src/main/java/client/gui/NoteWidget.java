@@ -151,7 +151,6 @@ public class NoteWidget extends JComponent {
                 return Colours.BROWN;
             default:
                 return Colours.WHITE;
-
         }
     }
 }

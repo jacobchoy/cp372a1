@@ -161,9 +161,11 @@ public class BulletinBoard {
      *         otherwise
      */
     public synchronized boolean removePin(int x, int y) {
-        for (Pin pin : pins) {
+        java.util.Iterator<Pin> iterator = pins.iterator();
+        while (iterator.hasNext()) {
+            Pin pin = iterator.next();
             if (pin.getX() == x && pin.getY() == y) {
-                pins.remove(pin);
+                iterator.remove();
                 return true;
             }
         }
