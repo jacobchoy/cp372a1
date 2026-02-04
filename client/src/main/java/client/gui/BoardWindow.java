@@ -435,9 +435,10 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     @Override
     public void onOkResponse(String remainder) {
         if ("GET_FILTERED".equals(lastSentCommand)) {
+            applyNotesFromGetResponse(remainder);
             appendGetLogFromServerFiltered(lastGetFilterDescription, remainder);
-            lastSentCommand = "GET";
-            connection.sendCommand(Protocol.CMD_GET);
+            lastSentCommand = "GET_PINS";
+            connection.sendCommand(Protocol.CMD_GET + " " + Protocol.GET_PINS);
         } else if ("GET".equals(lastSentCommand)) {
             applyNotesFromGetResponse(remainder);
             lastSentCommand = "GET_PINS";

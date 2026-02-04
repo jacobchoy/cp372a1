@@ -20,7 +20,6 @@ javac -cp "$root\build\shared" -d "$root\build\server" `
 Write-Host "Compiling client..."
 javac -cp "$root\build\shared" -d "$root\build\client" `
     "$root\client\src\main\java\client\*.java" `
-    "$root\client\src\main\java\client\gui\*.java" `
-    "$root\client\src\main\java\client\utils\*.java"
+    "$root\client\src\main\java\client\gui\*.java"
 
 Write-Host "Build complete."
