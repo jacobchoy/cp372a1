@@ -22,8 +22,10 @@ import java.util.List;
  * - Controls for querying, pinning, and deleting notes
  * - Status messages and error notifications
  * 
- * The window maintains a connection to the server and updates the display when the board state changes.
- * RFC Section 1.2: GUI layout and UI features are not covered by the RFC; this is client implementation.
+ * The window maintains a connection to the server and updates the display when
+ * the board state changes.
+ * RFC Section 1.2: GUI layout and UI features are not covered by the RFC; this
+ * is client implementation.
  *
  * @author Jonathan Bilewicz
  * @version 1.0
@@ -59,7 +61,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private JTextField unpinYField;
 
     public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight,
-                       int noteWidth, int noteHeight, List<String> availableColours) {
+            int noteWidth, int noteHeight, List<String> availableColours) {
         this.connection = connection;
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
@@ -118,7 +120,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
         int endX = Math.max(0, boardWidth - 1);
         int endY = Math.max(0, boardHeight - 1);
-        JLabel info = new JLabel("<html>Board: " + boardWidth + "×" + boardHeight + "<br>Note: " + noteWidth + "×" + noteHeight + "<br>Coords: (0,0)–(" + endX + "," + endY + ")</html>");
+        JLabel info = new JLabel("<html>Board: " + boardWidth + "×" + boardHeight + "<br>Note: " + noteWidth + "×"
+                + noteHeight + "<br>Coords: (0,0)–(" + endX + "," + endY + ")</html>");
         info.setBackground(WINDOW_BG);
         panel.add(info);
         return panel;
@@ -126,7 +129,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private JPanel createGetLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "GET log", 0, 0, null, Color.DARK_GRAY));
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "GET log", 0,
+                0, null, Color.DARK_GRAY));
         panel.setBackground(WINDOW_BG);
         panel.setPreferredSize(new Dimension(220, 180));
 
@@ -153,8 +157,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(WINDOW_BG);
         Border border = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BOARD_BORDER, 1),
-            BorderFactory.createEmptyBorder(6, 6, 6, 6));
+                BorderFactory.createLineBorder(BOARD_BORDER, 1),
+                BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         // POST (RFC 7.1): add note at (x,y) with colour and message
         JPanel postBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
@@ -177,10 +181,12 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         postBox.add(postBtn);
         panel.add(postBox);
 
-        // GET (RFC 7.2): retrieve notes. Optional filters: colour, contains (x,y), message contains text.
+        // GET (RFC 7.2): retrieve notes. Optional filters: colour, contains (x,y),
+        // message contains text.
         JPanel getBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         getBox.setBackground(WINDOW_BG);
-        getBox.setBorder(BorderFactory.createTitledBorder(border, "GET notes (optional filters)", 0, 0, null, Color.DARK_GRAY));
+        getBox.setBorder(
+                BorderFactory.createTitledBorder(border, "GET notes (optional filters)", 0, 0, null, Color.DARK_GRAY));
         getBox.add(new JLabel("colour:"));
         getColourCombo = new JComboBox<>(new String[] { "(all)", "red", "blue", "green" });
         getBox.add(getColourCombo);
@@ -309,21 +315,25 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             if (sel != null && !"(all)".equals(sel.toString().trim())) {
                 colourVal = sel.toString().trim();
                 cmd.append(" ").append(Protocol.FILTER_COLOUR).append(colourVal);
-                if (filterDesc.length() > 0) filterDesc.append(" ");
+                if (filterDesc.length() > 0)
+                    filterDesc.append(" ");
                 filterDesc.append("colour=").append(colourVal);
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
         String cx = getContainsXField.getText().trim();
         String cy = getContainsYField.getText().trim();
         if (!cx.isEmpty() && !cy.isEmpty()) {
             cmd.append(" ").append(Protocol.FILTER_CONTAINS).append(cx).append(" ").append(cy);
-            if (filterDesc.length() > 0) filterDesc.append(" ");
+            if (filterDesc.length() > 0)
+                filterDesc.append(" ");
             filterDesc.append("contains=").append(cx).append(",").append(cy);
         }
         String refers = getRefersToField.getText().trim();
         if (!refers.isEmpty()) {
             cmd.append(" ").append(Protocol.FILTER_REFERS_TO).append(refers);
-            if (filterDesc.length() > 0) filterDesc.append(" ");
+            if (filterDesc.length() > 0)
+                filterDesc.append(" ");
             filterDesc.append("refersTo=\"").append(refers).append("\"");
         }
         String getCmd = cmd.toString().trim();
@@ -461,7 +471,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         noteWidgets.clear();
         for (String seg : segments) {
             seg = seg.trim();
-            if (seg.isEmpty()) continue;
+            if (seg.isEmpty())
+                continue;
             String[] parts = seg.split("\\s+", 4);
             if (parts.length >= 3) {
                 try {
@@ -470,8 +481,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
                     String colour = parts[2];
                     String message = parts.length > 3 ? parts[3] : "";
                     String noteId = x + "_" + y;
-                    boolean pinned = isNotePinned(x, y);
-                    NoteWidget w = new NoteWidget(noteId, x, y, colour, message, pinned, noteWidth, noteHeight);
+                    NoteWidget w = new NoteWidget(noteId, x, y, colour, message, noteWidth, noteHeight);
                     noteWidgets.add(w);
                 } catch (NumberFormatException ignored) {
                 }
@@ -493,7 +503,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         int idx = 0;
         for (String seg : segments) {
             seg = seg.trim();
-            if (seg.isEmpty()) continue;
+            if (seg.isEmpty())
+                continue;
             String[] parts = seg.split("\\s+");
             if (parts.length >= 2) {
                 try {
@@ -511,20 +522,21 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return pinWidgets.size();
     }
 
-    private boolean isNotePinned(int noteX, int noteY) {
+    private java.util.List<Point> getPinsForNote(int noteX, int noteY) {
+        java.util.List<Point> points = new ArrayList<>();
         for (PinWidget p : pinWidgets) {
             int px = p.getX();
             int py = p.getY();
             if (px >= noteX && px < noteX + noteWidth && py >= noteY && py < noteY + noteHeight) {
-                return true;
+                points.add(new Point(px, py));
             }
         }
-        return false;
+        return points;
     }
 
     private void updateNotePinnedState() {
         for (NoteWidget n : noteWidgets) {
-            n.setPinned(isNotePinned(n.getX(), n.getY()));
+            n.setPins(getPinsForNote(n.getX(), n.getY()));
         }
     }
 
@@ -594,18 +606,20 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         if (remainder != null && !remainder.trim().isEmpty()) {
             for (String seg : remainder.split("\\" + Protocol.LIST_SEPARATOR)) {
                 seg = seg.trim();
-                if (seg.isEmpty()) continue;
+                if (seg.isEmpty())
+                    continue;
                 String[] parts = seg.split("\\s+", 4);
                 if (parts.length >= 3) {
                     String msg = parts.length > 3 ? parts[3] : "";
-                    if (msg.length() > 15) msg = msg.substring(0, 12) + "...";
+                    if (msg.length() > 15)
+                        msg = msg.substring(0, 12) + "...";
                     noteEntries.add("(" + parts[0] + "," + parts[1] + ") " + parts[2] + " \"" + msg + "\"");
                 }
             }
         }
         StringBuilder sb = new StringBuilder();
         sb.append("[").append(time).append("] GET (filter: ").append(filterDescription).append(") — ")
-          .append(noteEntries.size()).append(" note(s) from server\n");
+                .append(noteEntries.size()).append(" note(s) from server\n");
         if (noteEntries.isEmpty()) {
             sb.append("  (none)\n");
         } else {
@@ -620,15 +634,19 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private void appendGetLogFullBoard(int noteCount, int pinCount) {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         StringBuilder sb = new StringBuilder();
-        sb.append("[").append(time).append("] GET — ").append(noteCount).append(" note(s), ").append(pinCount).append(" pin(s)\n");
+        sb.append("[").append(time).append("] GET — ").append(noteCount).append(" note(s), ").append(pinCount)
+                .append(" pin(s)\n");
         if (!noteWidgets.isEmpty()) {
             sb.append("  Notes: ");
             for (int i = 0; i < noteWidgets.size(); i++) {
                 NoteWidget n = noteWidgets.get(i);
-                if (i > 0) sb.append("; ");
+                if (i > 0)
+                    sb.append("; ");
                 String msg = n.getMessage();
-                if (msg == null) msg = "";
-                if (msg.length() > 15) msg = msg.substring(0, 12) + "...";
+                if (msg == null)
+                    msg = "";
+                if (msg.length() > 15)
+                    msg = msg.substring(0, 12) + "...";
                 sb.append("(").append(n.getX()).append(",").append(n.getY()).append(") \"").append(msg).append("\"");
             }
             sb.append("\n");
@@ -637,7 +655,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             sb.append("  Pins: ");
             for (int i = 0; i < pinWidgets.size(); i++) {
                 PinWidget p = pinWidgets.get(i);
-                if (i > 0) sb.append("; ");
+                if (i > 0)
+                    sb.append("; ");
                 sb.append("(").append(p.getX()).append(",").append(p.getY()).append(")");
             }
             sb.append("\n");

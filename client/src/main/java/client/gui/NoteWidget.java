@@ -25,31 +25,28 @@ public class NoteWidget extends JComponent {
     private Color colour;
     private String colourName;
     private String message;
-    private boolean isPinned;
+    private java.util.List<Point> pins = new java.util.ArrayList<>();
     private int width;
     private int height;
 
     /**
      * Constructs a new NoteWidget.
      * 
-     * @param noteId   The unique identifier of the note
-     * @param x        The x-coordinate of the note's upper-left corner
-     * @param y        The y-coordinate of the note's upper-left corner
-     * @param colour   The colour of the note
-     * @param message  The message text of the note
-     * @param isPinned Whether the note is currently pinned
-     * @param width    The width of the note
-     * @param height   The height of the note
+     * @param noteId  The unique identifier of the note
+     * @param x       The x-coordinate of the note's upper-left corner
+     * @param y       The y-coordinate of the note's upper-left corner
+     * @param colour  The colour of the note
+     * @param message The message text of the note
+     * @param width   The width of the note
+     * @param height  The height of the note
      */
-    public NoteWidget(String noteId, int x, int y, String colour, String message,
-            boolean isPinned, int width, int height) {
+    public NoteWidget(String noteId, int x, int y, String colour, String message, int width, int height) {
         this.noteId = noteId;
         this.x = x;
         this.y = y;
         this.colourName = colour == null ? "" : colour.trim();
         this.colour = getColourFromName(colour);
         this.message = message;
-        this.isPinned = isPinned;
         this.width = width;
         this.height = height;
     }
@@ -86,22 +83,23 @@ public class NoteWidget extends JComponent {
         }
         // Border: darker if pinned, or just regular border
         g.setColor(colour.darker());
+        if (!pins.isEmpty()) {
+            ((Graphics2D) g).setStroke(new BasicStroke(2));
+        }
         g.drawRect(0, 0, width - 1, height - 1);
+        if (!pins.isEmpty()) {
+            ((Graphics2D) g).setStroke(new BasicStroke(1));
+        }
 
         // Visual pin indicator if pinned
-        if (isPinned) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int s = 10;
-            int px = (width - s) / 2;
-            int py = 4;
-            // Red pin head
-            g2.setColor(new Color(200, 50, 50));
-            g2.fillOval(px, py, s, s);
-            g2.setColor(new Color(120, 25, 25));
-            g2.drawOval(px, py, s - 1, s - 1);
-            g2.setColor(new Color(255, 180, 180));
-            g2.fillOval(px + 2, py + 2, 3, 3);
+        for (Point p : pins) {
+            int px = p.x - this.x;
+            int py = p.y - this.y;
+            Graphics g2 = g.create();
+            g2.translate(px, py);
+            // Use dummy ID since this is just for visual rendering
+            PinWidget pinWidget = new PinWidget("visual", p.x, p.y, noteId);
+            pinWidget.paintComponent(g2);
             g2.dispose();
         }
     }
@@ -168,12 +166,12 @@ public class NoteWidget extends JComponent {
     }
 
     /**
-     * Updates the note's pinned status.
+     * Updates the note's pinned status with specific pin locations.
      * 
-     * @param isPinned The new pinned status
+     * @param pins List of points where pins are located (global coordinates)
      */
-    public void setPinned(boolean isPinned) {
-        this.isPinned = isPinned;
+    public void setPins(java.util.List<Point> pins) {
+        this.pins = pins != null ? new java.util.ArrayList<>(pins) : new java.util.ArrayList<>();
     }
 
     /**
@@ -182,7 +180,7 @@ public class NoteWidget extends JComponent {
      * @return true if pinned, false otherwise
      */
     public boolean isPinned() {
-        return isPinned;
+        return !pins.isEmpty();
     }
 
     /**
