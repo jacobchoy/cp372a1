@@ -130,7 +130,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private JPanel createGetLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "Activity log", 0, 0, null, Color.DARK_GRAY));
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1),
+                "Activity log", 0, 0, null, Color.DARK_GRAY));
         panel.setBackground(WINDOW_BG);
         panel.setPreferredSize(new Dimension(220, 180));
 
@@ -558,11 +559,11 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         boardPanel.removeAll();
         for (NoteWidget w : noteWidgets) {
             w.setBounds(w.getX(), w.getY(), noteWidth, noteHeight);
-            boardPanel.add(w);
+            boardPanel.add(w, 0);
         }
         for (PinWidget w : pinWidgets) {
             w.setBounds(w.getX(), w.getY(), 10, 10);
-            boardPanel.add(w);
+            boardPanel.add(w, 0);
         }
         boardPanel.revalidate();
         boardPanel.repaint();
@@ -681,7 +682,9 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 
-    /** Appends one line to the activity log (UI only). Use for commands and errors. */
+    /**
+     * Appends one line to the activity log (UI only). Use for commands and errors.
+     */
     private void activityLog(String level, String message) {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         String line = "[" + time + "] " + level + " — " + message + "\n";
