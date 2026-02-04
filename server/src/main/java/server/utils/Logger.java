@@ -7,11 +7,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Utility class for logging server events.
- * Logs to console and optionally to a log file.
- * RFC Section 9.3: Log or handle internal errors without exposing sensitive details to client.
- */
+// logging server events
 public class Logger {
     private static PrintWriter logFile;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

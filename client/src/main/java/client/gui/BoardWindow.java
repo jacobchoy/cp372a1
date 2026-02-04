@@ -3,7 +3,6 @@ package client.gui;
 
 import client.ClientConnection;
 import client.ServerMessageListener;
-import shared.Colours;
 import shared.Protocol;
 
 import javax.swing.*;

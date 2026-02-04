@@ -13,24 +13,7 @@ import server.utils.Logger;
 import shared.Protocol;
 import utils.ProtocolParser;
 
-/**
- * Handles communication with a single client connection.
- * 
- * Each ClientHandler runs in its own thread and manages the full lifecycle
- * of a client connection, including:
- * - Receiving and parsing client requests
- * - Processing protocol commands
- * - Sending responses back to the client
- * - Handling connection errors and cleanup
- * 
- * RFC Section 10.1: One thread per client connection; all threads share the
- * global board.
- * RFC Section 5.2: For each command (except DISCONNECT), server sends exactly
- * one response line.
- *
- * @author Jonathan Bilewicz
- * @version 1.0
- */
+// handles communication with a single client connection
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private BulletinBoard bulletinBoard;
@@ -40,13 +23,7 @@ public class ClientHandler implements Runnable {
     public int idGen;
     private List<String> validColours;
 
-    /**
-     * Constructs a new ClientHandler for the given client socket.
-     * 
-     * @param clientSocket  The socket connected to the client
-     * @param bulletinBoard The shared BulletinBoard instance
-     * @param validColours  The list of valid colours for notes
-     */
+    // constructs a new ClientHandler for the given client socket
     public ClientHandler(Socket clientSocket, BulletinBoard bulletinBoard, List<String> validColours) {
         this.clientSocket = clientSocket;
         this.bulletinBoard = bulletinBoard;
@@ -54,14 +31,7 @@ public class ClientHandler implements Runnable {
 
     }
 
-    /**
-     * Main run method executed by the thread.
-     * 
-     * Handles the client connection lifecycle:
-     * 1. Sends initial connection message (board dimensions, note dimensions)
-     * 2. Processes client commands until connection is closed
-     * 3. Cleans up resources on exit
-     */
+    // main run method executed by the thread
     @Override
     public void run() {
         try {
@@ -87,14 +57,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Sends the initial handshake message to the client.
-     * 
-     * RFC Section 8.1: OK BOARD <board_width> <board_height> NOTE
-     * <note_width> <note_height> colourS <colour1> ...
-     * <colourN>
-     * Sent immediately upon accepting a new client connection (RFC Section 2.2).
-     */
+    // sends the initial handshake message to the client
     private void sendInitialMessage() {
         out.println(Protocol.RESP_OK + " " + Protocol.RESP_BOARD + " " + bulletinBoard.getBoardWidth() + " "
                 + bulletinBoard.getBoardHeight()
@@ -103,12 +66,7 @@ public class ClientHandler implements Runnable {
         this.idGen = 0;
     }
 
-    /**
-     * Processes a single command from the client.
-     *
-     * @param command The command string received from the client
-     * @return true if the connection should close (e.g. after DISCONNECT), false otherwise
-     */
+    // processes a single command from the client
     private boolean processCommand(String command) {
         if (!ProtocolParser.isValidCommand(command)) {
             out.println(Protocol.RESP_ERROR + " " + Protocol.ERR_UNKNOWN_COMMAND + " Unknown command");
@@ -156,12 +114,7 @@ public class ClientHandler implements Runnable {
         return "DISCONNECT".equals(commandType);
     }
 
-    /**
-     * Handles the POST command to add a new note.
-     * 
-     * @param params The parameters for the POST command
-     * @return The response message to send to the client
-     */
+    // handles the POST command to add a new note
     private String handlePostNote(String params) {
         String[] parts = ProtocolParser.parsePostCommand(params);
         if (parts == null) {
@@ -207,15 +160,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Handles the GET command to retrieve notes or pins.
-     * 
-     * RFC Section 7.2: GET PINS or GET [color=<colour>] [contains=<x>
-     * <y>] [refersTo=<substring>]
-     * 
-     * @param params The parameters for the GET command
-     * @return The response message to send to the client
-     */
+    // handles the GET command to retrieve notes or pins
     private String handleGet(String params) {
         String parsed = ProtocolParser.parseGetCommand(params);
         if (parsed == null) {
@@ -229,19 +174,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Handles GET PINS subcommand.
-     * 
-     * RFC Section 7.2.1: Returns all pin coordinates as "x1 y1;x2 y2;..."
-     * 
-     * @return The response message with pin coordinates
-     */
+    // handles GET PINS subcommand
     private String handleGetPins() {
         List<Pin> pins = bulletinBoard.getPins();
         StringBuilder sb = new StringBuilder();
-        // RFC says: coordinates. Format usually implies list of Pins
-        // Typically GET PINS returns "x y;x y" etc.
-        // Assuming format: x1 y1;x2 y2
         for (int i = 0; i < pins.size(); i++) {
             Pin p = pins.get(i);
             sb.append(p.getX()).append(" ").append(p.getY());
@@ -252,15 +188,7 @@ public class ClientHandler implements Runnable {
         return sb.length() > 0 ? Protocol.RESP_OK + " " + sb.toString() : Protocol.RESP_OK;
     }
 
-    /**
-     * Handles GET with filter criteria.
-     * 
-     * RFC Section 7.2.2: GET [color=<colour>] [contains=<x> <y>]
-     * [refersTo=<substring>]; criteria combined with logical AND.
-     * 
-     * @param params The filter parameters
-     * @return The response message with matching notes as "x y colour content;..."
-     */
+    // handles GET with filter criteria
     private String handleGetWithFilters(String params) {
         Map<String, String> filters = ProtocolParser.parseGetFilters(params);
         if (filters == null) {
@@ -273,7 +201,7 @@ public class ClientHandler implements Runnable {
         for (Note note : allNotes) {
             boolean matches = true;
 
-            // Filter: colour (protocol key is "color=")
+            // Filter: colour
             if (filters.containsKey("color")) {
                 if (!note.getColour().equals(filters.get("color"))) {
                     matches = false;
@@ -299,9 +227,6 @@ public class ClientHandler implements Runnable {
                             matches = false;
                         }
                     } else {
-                        // Invalid contains format, ignore or fail?
-                        // parser might have validated it or passed raw string.
-                        // For now let's assume if it fails parsing we just say it doesn't match
                         matches = false;
                     }
                 } catch (NumberFormatException e) {
@@ -314,7 +239,7 @@ public class ClientHandler implements Runnable {
             }
         }
 
-        // Format response: OK x y colour message;... or OK if no matches (RFC 7.2.2)
+        // Format response, OK x y colour message or OK if no matches
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < result.size(); i++) {
             Note n = result.get(i);
@@ -327,15 +252,7 @@ public class ClientHandler implements Runnable {
         return sb.length() > 0 ? Protocol.RESP_OK + " " + sb.toString() : Protocol.RESP_OK;
     }
 
-    /**
-     * Handles the PIN command to add a pin at coordinates.
-     * 
-     * RFC Section 7.3: PIN x y places a pin at (x, y).
-     * All notes covering that coordinate become pinned.
-     * 
-     * @param params The parameters for the PIN command (x y)
-     * @return The response message to send to the client
-     */
+    // handles the PIN command to add a pin at coordinates
     private String handlePin(String params) {
         String[] parts = ProtocolParser.parsePinCommand(params);
         if (parts == null) {
@@ -357,14 +274,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Handles the UNPIN command to remove a pin at coordinates.
-     * 
-     * RFC Section 7.4: UNPIN x y removes one pin at (x, y).
-     * 
-     * @param params The parameters for the UNPIN command (x y)
-     * @return The response message to send to the client
-     */
+    // handles the UNPIN command to remove a pin at coordinates
     private String handleUnpin(String params) {
         String[] parts = ProtocolParser.parseUnpinCommand(params);
         if (parts == null) {
@@ -386,49 +296,24 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Handles the SHAKE command to remove all unpinned notes.
-     * 
-     * RFC Section 7.5: SHAKE removes all unpinned notes.
-     * The operation MUST be atomic.
-     * 
-     * @return The response message to send to the client
-     */
+    // handles the SHAKE command to remove all unpinned notes
     private String handleShake() {
         bulletinBoard.shake();
         return Protocol.RESP_OK;
     }
 
-    /**
-     * Handles the CLEAR command to remove all notes and pins.
-     * 
-     * RFC Section 7.6: CLEAR removes all notes and all pins.
-     * The operation MUST be atomic.
-     * 
-     * @return The response message to send to the client
-     */
+    // handles the CLEAR command to remove all notes and pins
     private String handleClear() {
         bulletinBoard.clear();
         return Protocol.RESP_OK;
     }
 
-    /**
-     * Handles the DISCONNECT command to close the connection.
-     *
-     * RFC Section 7.7: Server may send OK before closing or close immediately; MUST
-     * clean up resources; MUST NOT crash on unexpected disconnect.
-     * 
-     * @return The response message (OK) or null if closing immediately
-     */
+    // handles the DISCONNECT command to close the connection
     private String handleDisconnect() {
         return Protocol.RESP_OK;
     }
 
-    /**
-     * Closes the client connection and cleans up resources.
-     * RFC Section 11: If client disconnects unexpectedly, server MUST clean up and
-     * continue serving other clients.
-     */
+    // closes the client connection and cleans up resources
     private void closeConnection() {
         try {
             if (in != null)

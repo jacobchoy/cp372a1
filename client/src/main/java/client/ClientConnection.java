@@ -9,21 +9,7 @@ import java.net.Socket;
 import javax.swing.SwingUtilities;
 import shared.Protocol;
 
-/**
- * Manages the TCP connection to the server.
- * 
- * This class handles:
- * - Establishing and maintaining the socket connection
- * - Sending commands to the server
- * - Receiving responses from the server
- * - Parsing server messages
- * - Notifying the GUI of state changes
- * RFC Section 5.2: Client MUST wait to send a new command until it has received
- * the response to the previous command.
- *
- * @author Jonathan Bilewicz
- * @version 1.0
- */
+// manages the TCP connection to the server
 public class ClientConnection {
     private Socket socket;
     private BufferedReader in;
@@ -33,23 +19,14 @@ public class ClientConnection {
     private boolean connected;
     private ServerMessageListener messageListener;
 
-    /**
-     * Constructs a new ClientConnection.
-     * 
-     * @param hostname The server hostname or IP address
-     * @param port     The server port number
-     */
+    // constructs a new ClientConnection
     public ClientConnection(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
         this.connected = false;
     }
 
-    /**
-     * Establishes a connection to the server.
-     * 
-     * @return true if connection was successful, false otherwise
-     */
+    // establishes a connection to the server
     public boolean connect() {
         try {
             Socket clientSocket = new Socket(hostname, port);
@@ -64,9 +41,7 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Closes the connection to the server.
-     */
+    // closes the connection to the server
     public void disconnect() {
         try {
             socket.close();
@@ -76,12 +51,7 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Sends a command to the server.
-     * 
-     * @param command The command string to send
-     * @return true if the command was sent successfully, false otherwise
-     */
+    // sends a command to the server
     public boolean sendCommand(String command) {
         try {
             out.println(command);
@@ -92,13 +62,7 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Receives a response from the server.
-     * 
-     * Blocks until a response is received or the connection is closed.
-     * 
-     * @return The response string from the server, or null if connection closed
-     */
+    // receives a response from the server
     public String receiveResponse() {
         try {
             return in.readLine();
@@ -108,30 +72,17 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Checks if the client is currently connected to the server.
-     * 
-     * @return true if connected, false otherwise
-     */
+    // checks if the client is currently connected to the server
     public boolean isConnected() {
         return connected;
     }
 
-    /**
-     * Sets the listener to be notified of server messages (on the EDT).
-     *
-     * @param listener The listener, or null to clear
-     */
+    // sets the listener to be notified of server messages
     public void setServerMessageListener(ServerMessageListener listener) {
         this.messageListener = listener;
     }
 
-    /**
-     * Starts a background thread to listen for server messages.
-     * 
-     * This thread continuously reads messages from the server and
-     * notifies the GUI of updates (e.g., new notes, deleted notes).
-     */
+    // starts a background thread to listen for server messages
     public void startListening() {
         Thread listenerThread = new Thread(() -> {
             try {
@@ -146,13 +97,7 @@ public class ClientConnection {
         listenerThread.start();
     }
 
-    /**
-     * Handles an incoming message from the server.
-     * 
-     * Parses the message and updates the GUI accordingly.
-     * 
-     * @param message The message received from the server
-     */
+    // handles an incoming message from the server
     private void handleServerMessage(String message) {
         if (message == null || message.trim().isEmpty()) {
             return;
