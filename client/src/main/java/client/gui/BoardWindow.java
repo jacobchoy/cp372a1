@@ -1,3 +1,4 @@
+// Imports 
 package client.gui;
 
 import client.ClientConnection;
@@ -14,21 +15,12 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Main GUI window for the bulletin board client.
- * 
+ * Main GUI window for the bulletin board client
  * This window displays:
  * - The bulletin board canvas showing all notes and pins
  * - Controls for posting new notes
  * - Controls for querying, pinning, and deleting notes
  * - Status messages and error notifications
- * 
- * The window maintains a connection to the server and updates the display when
- * the board state changes.
- * RFC Section 1.2: GUI layout and UI features are not covered by the RFC; this
- * is client implementation.
- *
- * @author Jonathan Bilewicz
- * @version 1.0
  */
 public class BoardWindow extends JFrame implements ServerMessageListener {
     private final ClientConnection connection;
@@ -61,8 +53,8 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private JTextField unpinXField;
     private JTextField unpinYField;
 
-    public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight,
-            int noteWidth, int noteHeight, List<String> availableColours) {
+    public BoardWindow(ClientConnection connection, int boardWidth, int boardHeight, int noteWidth, int noteHeight,
+            List<String> availableColours) {
         this.connection = connection;
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
@@ -70,12 +62,13 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         this.noteHeight = noteHeight;
         this.availableColours = availableColours;
 
-        setTitle("Bulletin Board");
+        // Jacob & Jonathan's Bulletin Board
+        setTitle("JJ's Bulletin Board");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initializeGUI();
         connection.setServerMessageListener(this);
-        // Load current board state as soon as window is ready
+        // Loading the current board state as soon as window is ready
         refreshBoard();
     }
 
@@ -108,11 +101,12 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         statusLabel.setBackground(WINDOW_BG);
         add(statusLabel, BorderLayout.SOUTH);
 
-        // static size so it looks good :)
+        // static size of the entire window so it looks good :)
         setSize(700, 750);
         setResizable(false);
     }
 
+    // Creating the board info panel
     private JPanel createBoardInfoPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
         panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -128,6 +122,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return panel;
     }
 
+    // Creating the get log panel
     private JPanel createGetLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1),
@@ -151,6 +146,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return panel;
     }
 
+    // Using only RGB for colours
     private static final String[] COLOUR_OPTIONS = new String[] { "red", "blue", "green" };
 
     private JPanel createControlPanel() {
@@ -161,7 +157,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
                 BorderFactory.createLineBorder(BOARD_BORDER, 1),
                 BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
-        // POST (RFC 7.1): add note at (x,y) with colour and message
+        // add note at (x,y) with colour and message
         JPanel postBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         postBox.setBackground(WINDOW_BG);
         postBox.setBorder(BorderFactory.createTitledBorder(border, "POST", 0, 0, null, Color.DARK_GRAY));
@@ -182,22 +178,21 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         postBox.add(postBtn);
         panel.add(postBox);
 
-        // GET (RFC 7.2): retrieve notes. Optional filters: colour, contains (x,y),
-        // message contains text.
+        // message contains text
         JPanel getBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         getBox.setBackground(WINDOW_BG);
         getBox.setBorder(
-                BorderFactory.createTitledBorder(border, "GET notes (optional filters)", 0, 0, null, Color.DARK_GRAY));
+                BorderFactory.createTitledBorder(border, "GET note(s)", 0, 0, null, Color.DARK_GRAY));
         getBox.add(new JLabel("colour:"));
-        getColourCombo = new JComboBox<>(new String[] { "(all)", "red", "blue", "green" });
+        getColourCombo = new JComboBox<>(new String[] { "(all)", "RED", "BLUE", "GREEN" });
         getBox.add(getColourCombo);
-        getBox.add(new JLabel("contains x:"));
+        getBox.add(new JLabel("coords x:"));
         getContainsXField = new JTextField(2);
         getBox.add(getContainsXField);
         getBox.add(new JLabel("y:"));
         getContainsYField = new JTextField(2);
         getBox.add(getContainsYField);
-        getBox.add(new JLabel("message contains:"));
+        getBox.add(new JLabel("msg contains:"));
         getRefersToField = new JTextField(8);
         getRefersToField.setToolTipText("Show only notes whose message contains this text");
         getBox.add(getRefersToField);
@@ -206,7 +201,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getBox.add(getBtn);
         panel.add(getBox);
 
-        // GET PINS (RFC 7.2.1): retrieve pin coordinates only
+        // retrieve pin coordinates only
         JPanel getPinsBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         getPinsBox.setBackground(WINDOW_BG);
         getPinsBox.setBorder(BorderFactory.createTitledBorder(border, "GET PINS", 0, 0, null, Color.DARK_GRAY));
@@ -215,7 +210,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getPinsBox.add(getPinsBtn);
         panel.add(getPinsBox);
 
-        // PIN (RFC 7.3): place pin at (x,y); note covering that point is pinned
+        // place pin at x, y coordinates
         JPanel pinBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         pinBox.setBackground(WINDOW_BG);
         pinBox.setBorder(BorderFactory.createTitledBorder(border, "PIN", 0, 0, null, Color.DARK_GRAY));
@@ -230,7 +225,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         pinBox.add(pinBtn);
         panel.add(pinBox);
 
-        // UNPIN (RFC 7.4): remove pin at (x,y)
+        // remove pin at x, y coordinates
         JPanel unpinBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         unpinBox.setBackground(WINDOW_BG);
         unpinBox.setBorder(BorderFactory.createTitledBorder(border, "UNPIN", 0, 0, null, Color.DARK_GRAY));
@@ -245,7 +240,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         unpinBox.add(unpinBtn);
         panel.add(unpinBox);
 
-        // SHAKE (RFC 7.5) / CLEAR (RFC 7.6) / DISCONNECT (RFC 7.7)
+        // shake / clear / disconnect
         JPanel actionsBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         actionsBox.setBackground(WINDOW_BG);
         actionsBox.setBorder(BorderFactory.createTitledBorder(border, "Actions", 0, 0, null, Color.DARK_GRAY));
@@ -263,6 +258,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return panel;
     }
 
+    // create the board panel
     private JPanel createBoardPanel() {
         JPanel panel = new JPanel(null) {
             @Override
@@ -276,6 +272,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return panel;
     }
 
+    // handle the POST call
     private void handlePostNote() {
         String xStr = postXField.getText().trim();
         String yStr = postYField.getText().trim();
@@ -307,6 +304,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the GET call
     private void handleGet() {
         getWasUserInitiated = true;
         StringBuilder cmd = new StringBuilder(Protocol.CMD_GET);
@@ -314,7 +312,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         String colourVal = null;
         try {
             Object sel = getColourCombo.getSelectedItem();
-            if (sel != null && !"(all)".equals(sel.toString().trim())) {
+            if (sel != null && !"(ALL)".equals(sel.toString().trim())) {
                 colourVal = sel.toString().trim();
                 cmd.append(" ").append(Protocol.FILTER_COLOUR).append(colourVal);
                 if (filterDesc.length() > 0)
@@ -354,6 +352,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the GET_PINS call
     private void handleGetPins() {
         lastSentCommand = "GET_PINS";
         activityLog("GET_PINS", "");
@@ -362,6 +361,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the PIN call
     private void handlePin() {
         String xStr = pinXField.getText().trim();
         String yStr = pinYField.getText().trim();
@@ -382,6 +382,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the UNPIN call
     private void handleUnpin() {
         String xStr = unpinXField.getText().trim();
         String yStr = unpinYField.getText().trim();
@@ -402,6 +403,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the SHAKE call
     private void handleShake() {
         lastSentCommand = Protocol.CMD_SHAKE;
         activityLog("SHAKE", "");
@@ -410,6 +412,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the CLEAR call
     private void handleClear() {
         lastSentCommand = Protocol.CMD_CLEAR;
         activityLog("CLEAR", "");
@@ -418,6 +421,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // handle the DISCONNECT call
     private void handleDisconnect() {
         activityLog("DISCONNECT", "");
         connection.sendCommand(Protocol.CMD_DISCONNECT);
@@ -426,12 +430,14 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         connection.setServerMessageListener(null);
     }
 
+    // handle the error response
     @Override
     public void onError(String message) {
         showError(message);
         lastSentCommand = "";
     }
 
+    // handle the OK response
     @Override
     public void onOkResponse(String remainder) {
         if ("GET_FILTERED".equals(lastSentCommand)) {
@@ -468,14 +474,16 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
     }
 
+    // refresh the board
     private void refreshBoard() {
         getWasUserInitiated = false;
         lastSentCommand = "GET";
         connection.sendCommand(Protocol.CMD_GET);
     }
 
-    private int lastGetNoteCount = 0;
+    private int lastGetNoteCount = 0; // last note count from GET response
 
+    // apply notes from GET response
     private void applyNotesFromGetResponse(String remainder) {
         if (remainder == null || remainder.trim().isEmpty()) {
             noteWidgets.clear();
@@ -507,6 +515,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         repaintBoard();
     }
 
+    // apply pins from GET_PINS response
     private int applyPinsFromGetPinsResponse(String remainder) {
         if (remainder == null || remainder.trim().isEmpty()) {
             pinWidgets.clear();
@@ -538,6 +547,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return pinWidgets.size();
     }
 
+    // get pins for note
     private java.util.List<Point> getPinsForNote(int noteX, int noteY) {
         java.util.List<Point> points = new ArrayList<>();
         for (PinWidget p : pinWidgets) {
@@ -550,12 +560,14 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         return points;
     }
 
+    // update note pinned state
     private void updateNotePinnedState() {
         for (NoteWidget n : noteWidgets) {
             n.setPins(getPinsForNote(n.getX(), n.getY()));
         }
     }
 
+    // repaint the board
     private void repaintBoard() {
         boardPanel.removeAll();
         for (NoteWidget w : noteWidgets) {
@@ -570,10 +582,12 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         boardPanel.repaint();
     }
 
+    // update the board
     public void updateBoard() {
         refreshBoard();
     }
 
+    // add a note widget
     public void addNoteWidget(NoteWidget noteWidget) {
         noteWidgets.add(noteWidget);
         boardPanel.add(noteWidget);
@@ -582,11 +596,13 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         boardPanel.repaint();
     }
 
+    // remove a note widget
     public void removeNoteWidget(String noteId) {
         noteWidgets.removeIf(n -> noteId.equals(n.getNoteId()));
         repaintBoard();
     }
 
+    // show an error
     public void showError(String message) {
         statusLabel.setText("Error: " + message);
         statusLabel.setForeground(Color.RED);
@@ -594,6 +610,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    // show a status message
     public void showStatus(String message) {
         statusLabel.setText(message);
         statusLabel.setForeground(Color.BLACK);
@@ -601,6 +618,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         statusLabel.setBackground(null);
     }
 
+    // show a get success message
     private void showGetSuccess(int noteCount, int pinCount) {
         statusLabel.setOpaque(true);
         statusLabel.setBackground(new Color(200, 255, 200));
@@ -616,7 +634,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         t.start();
     }
 
-    /** Log entry from server filtered GET response (filtering done on backend). */
+    // append get log from server filtered
     private void appendGetLogFromServerFiltered(String filterDescription, String remainder) {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         List<String> noteEntries = new ArrayList<>();
@@ -647,7 +665,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 
-    /** Log entry for full board (no filter) after GET + GET_PINS. */
+    // append get log for full board (no filter) after GET + GET_PINS
     private void appendGetLogFullBoard(int noteCount, int pinCount) {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         StringBuilder sb = new StringBuilder();
@@ -683,9 +701,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 
-    /**
-     * Appends one line to the activity log (UI only). Use for commands and errors.
-     */
+    // append one line to the activity log (UI only) w/ nice timestamp
     private void activityLog(String level, String message) {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         String line = "[" + time + "] " + level + " — " + message + "\n";
@@ -693,6 +709,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 
+    // paint the board
     private void paintBoard(Graphics g) {
         g.setColor(BOARD_BG);
         g.fillRect(0, 0, boardWidth, boardHeight);
