@@ -108,9 +108,9 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         statusLabel.setBackground(WINDOW_BG);
         add(statusLabel, BorderLayout.SOUTH);
 
-        pack();
-        setSize(boardWidth + 240, boardHeight + 220);
-        setResizable(true);
+        // static size so it looks good :)
+        setSize(700, 750);
+        setResizable(false);
     }
 
     private JPanel createBoardInfoPanel() {
