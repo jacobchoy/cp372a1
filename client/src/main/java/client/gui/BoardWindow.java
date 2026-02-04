@@ -44,6 +44,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     private JLabel statusLabel;
     private String lastSentCommand = "";
     private boolean getWasUserInitiated;
+    private boolean getHadFilters;
     private String lastGetFilterDescription;
     private JTextArea getLogArea;
 
@@ -129,8 +130,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private JPanel createGetLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "GET log", 0,
-                0, null, Color.DARK_GRAY));
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(BOARD_BORDER, 1), "Activity log", 0, 0, null, Color.DARK_GRAY));
         panel.setBackground(WINDOW_BG);
         panel.setPreferredSize(new Dimension(220, 180));
 
@@ -297,6 +297,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             int y = Integer.parseInt(yStr);
             String cmd = Protocol.CMD_POST + " " + x + " " + y + " " + colour.trim() + " " + message.trim();
             lastSentCommand = Protocol.CMD_POST;
+            activityLog("POST", x + " " + y + " " + colour.trim() + " \"" + message.trim() + "\"");
             if (connection.sendCommand(cmd)) {
                 showStatus("Posting note...");
             }
@@ -340,10 +341,13 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         if (filterDesc.length() > 0) {
             lastSentCommand = "GET_FILTERED";
             lastGetFilterDescription = filterDesc.toString();
+            getHadFilters = true;
         } else {
             lastSentCommand = "GET";
             lastGetFilterDescription = null;
+            getHadFilters = false;
         }
+        activityLog("GET", filterDesc.length() > 0 ? "filter: " + filterDesc : "full board");
         if (connection.sendCommand(getCmd)) {
             showStatus("Refreshing board...");
         }
@@ -351,6 +355,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void handleGetPins() {
         lastSentCommand = "GET_PINS";
+        activityLog("GET_PINS", "");
         if (connection.sendCommand(Protocol.CMD_GET + " " + Protocol.GET_PINS)) {
             showStatus("Getting pins...");
         }
@@ -367,6 +372,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
             lastSentCommand = Protocol.CMD_PIN;
+            activityLog("PIN", x + " " + y);
             if (connection.sendCommand(Protocol.CMD_PIN + " " + x + " " + y)) {
                 showStatus("Adding pin...");
             }
@@ -386,6 +392,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
             lastSentCommand = Protocol.CMD_UNPIN;
+            activityLog("UNPIN", x + " " + y);
             if (connection.sendCommand(Protocol.CMD_UNPIN + " " + x + " " + y)) {
                 showStatus("Removing pin...");
             }
@@ -396,6 +403,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void handleShake() {
         lastSentCommand = Protocol.CMD_SHAKE;
+        activityLog("SHAKE", "");
         if (connection.sendCommand(Protocol.CMD_SHAKE)) {
             showStatus("Shaking...");
         }
@@ -403,12 +411,14 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
 
     private void handleClear() {
         lastSentCommand = Protocol.CMD_CLEAR;
+        activityLog("CLEAR", "");
         if (connection.sendCommand(Protocol.CMD_CLEAR)) {
             showStatus("Clearing board...");
         }
     }
 
     private void handleDisconnect() {
+        activityLog("DISCONNECT", "");
         connection.sendCommand(Protocol.CMD_DISCONNECT);
         connection.disconnect();
         showStatus("Disconnected.");
@@ -435,8 +445,11 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
             int pinCount = applyPinsFromGetPinsResponse(remainder);
             if (getWasUserInitiated) {
                 showGetSuccess(lastGetNoteCount, pinCount);
-                appendGetLogFullBoard(lastGetNoteCount, pinCount);
+                if (!getHadFilters) {
+                    appendGetLogFullBoard(lastGetNoteCount, pinCount);
+                }
                 getWasUserInitiated = false;
+                getHadFilters = false;
             } else {
                 showStatus("Done.");
             }
@@ -444,6 +457,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         } else if (Protocol.CMD_POST.equals(lastSentCommand) || Protocol.CMD_PIN.equals(lastSentCommand)
                 || Protocol.CMD_UNPIN.equals(lastSentCommand) || Protocol.CMD_SHAKE.equals(lastSentCommand)
                 || Protocol.CMD_CLEAR.equals(lastSentCommand)) {
+            activityLog("Response", "OK");
             showStatus("Done.");
             refreshBoard();
         } else {
@@ -574,6 +588,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
     public void showError(String message) {
         statusLabel.setText("Error: " + message);
         statusLabel.setForeground(Color.RED);
+        activityLog("ERROR", message);
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -663,6 +678,14 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         }
         sb.append("\n");
         getLogArea.append(sb.toString());
+        getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
+    }
+
+    /** Appends one line to the activity log (UI only). Use for commands and errors. */
+    private void activityLog(String level, String message) {
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        String line = "[" + time + "] " + level + " — " + message + "\n";
+        getLogArea.append(line);
         getLogArea.setCaretPosition(getLogArea.getDocument().getLength());
     }
 

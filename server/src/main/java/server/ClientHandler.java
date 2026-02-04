@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import server.utils.Logger;
 import shared.Protocol;
 import utils.ProtocolParser;
 
@@ -74,12 +75,13 @@ public class ClientHandler implements Runnable {
             while ((line = in.readLine()) != null) {
                 if (line.trim().isEmpty())
                     continue;
+                Logger.info("Command: " + line);
                 if (processCommand(line)) {
                     break;
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error handling client: " + e.getMessage());
+            Logger.error("Client: " + e.getMessage());
         } finally {
             closeConnection();
         }

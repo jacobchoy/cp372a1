@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import server.utils.Logger;
+
 /**
  * Main server class for the Bulletin Board System.
  * 
@@ -62,9 +64,10 @@ public class ServerMain {
         validColours = new ArrayList<>(Arrays.asList(args).subList(5, args.length));
 
         bulletinBoard = new BulletinBoard(boardWidth, boardHeight, noteWidth, noteHeight);
+        Logger.initialize("bulletin_board_server.log");
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started on port " + port);
+            Logger.info("Server started on port " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 ClientHandler clientHandler = new ClientHandler(clientSocket, bulletinBoard, validColours);

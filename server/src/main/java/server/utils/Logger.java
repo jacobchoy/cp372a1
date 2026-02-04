@@ -1,6 +1,6 @@
-// Logger class
 package server.utils;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,78 +9,53 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Utility class for logging server events.
- * 
- * Provides methods for logging information, warnings, and errors
- * to both the console and optionally to a log file.
+ * Logs to console and optionally to a log file.
  * RFC Section 9.3: Log or handle internal errors without exposing sensitive details to client.
- *
- * @author Jacob Choy
- * @version 1.0
  */
 public class Logger {
     private static PrintWriter logFile;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    /**
-     * Initializes the logger with an optional log file.
-     * 
-     * @param logFilePath The path to the log file, or null to log only to console
-     */
     public static void initialize(String logFilePath) {
-        // Implementation will go here
+        if (logFilePath != null && !logFilePath.isEmpty()) {
+            try {
+                File f = new File(logFilePath);
+                logFile = new PrintWriter(new FileWriter(f, true), true);
+            } catch (IOException e) {
+                System.err.println("Logger: could not open file " + logFilePath + ": " + e.getMessage());
+            }
+        }
     }
 
-    /**
-     * Logs an informational message.
-     * 
-     * @param message The message to log
-     */
     public static void info(String message) {
-        // Implementation will go here
+        log("INFO", message);
     }
 
-    /**
-     * Logs a warning message.
-     * 
-     * @param message The warning message to log
-     */
     public static void warning(String message) {
-        // Implementation will go here
+        log("WARNING", message);
     }
 
-    /**
-     * Logs an error message.
-     * 
-     * @param message The error message to log
-     */
     public static void error(String message) {
-        // Implementation will go here
+        log("ERROR", message);
     }
 
-    /**
-     * Logs a message with a specified level.
-     * 
-     * @param level   The log level (INFO, WARNING, ERROR)
-     * @param message The message to log
-     */
     private static void log(String level, String message) {
-        // Implementation will go here
+        String ts = getTimestamp();
+        String line = "[" + ts + "] " + level + " — " + message;
+        System.out.println(line);
+        if (logFile != null) {
+            logFile.println(line);
+        }
     }
 
-    /**
-     * Gets the current timestamp as a formatted string.
-     * 
-     * @return The formatted timestamp
-     */
     private static String getTimestamp() {
-        // Implementation will go here
-        return "";
+        return LocalDateTime.now().format(formatter);
     }
 
-    /**
-     * Closes the log file if it was opened.
-     */
     public static void close() {
-        // Implementation will go here
+        if (logFile != null) {
+            logFile.close();
+            logFile = null;
+        }
     }
 }
