@@ -15,7 +15,6 @@ import java.util.List;
 
 /**
  * Main GUI window for the bulletin board client
- * This window displays:
  * - The bulletin board canvas showing all notes and pins
  * - Controls for posting new notes
  * - Controls for querying, pinning, and deleting notes
