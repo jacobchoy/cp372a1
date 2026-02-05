@@ -1,5 +1,4 @@
 # CP372 A1 - Build script
-# Compiles shared, server, and client into build\
 
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
@@ -7,10 +6,10 @@ $root = $PSScriptRoot
 Write-Host "Creating build directories..."
 New-Item -ItemType Directory -Force -Path "$root\build\shared", "$root\build\server", "$root\build\client" | Out-Null
 
-Write-Host "Compiling shared..."
+Write-Host "Compiling shared (from server/shared)..."
 javac -d "$root\build\shared" `
-    "$root\shared\src\main\java\shared\*.java" `
-    "$root\shared\src\main\java\utils\*.java"
+    "$root\server\shared\src\main\java\shared\*.java" `
+    "$root\server\shared\src\main\java\utils\*.java"
 
 Write-Host "Compiling server..."
 javac -cp "$root\build\shared" -d "$root\build\server" `
