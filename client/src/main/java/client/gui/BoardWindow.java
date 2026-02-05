@@ -311,7 +311,7 @@ public class BoardWindow extends JFrame implements ServerMessageListener {
         String colourVal = null;
         try {
             Object sel = getColourCombo.getSelectedItem();
-            if (sel != null && !"(ALL)".equals(sel.toString().trim())) {
+            if (sel != null && !"(all)".equals(sel.toString().trim())) {
                 colourVal = sel.toString().trim();
                 cmd.append(" ").append(Protocol.FILTER_COLOUR).append(colourVal);
                 if (filterDesc.length() > 0)

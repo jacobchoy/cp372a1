@@ -67,7 +67,7 @@ public class ClientMain {
         String rest = message.substring((Protocol.RESP_OK + " " + Protocol.RESP_BOARD).length()).trim();
         String[] parts = rest.split("\\s+");
         // What we are expecting: <board_width> <board_height> NOTE <note_width>
-        // <note_height> colourS
+        // <note_height> colourS <colour1> ...
         if (parts.length < 6) {
             return null;
         }

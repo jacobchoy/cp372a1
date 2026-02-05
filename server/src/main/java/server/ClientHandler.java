@@ -127,6 +127,11 @@ public class ClientHandler implements Runnable {
             String colour = parts[2];
             String message = parts[3];
 
+            // RFC: note content MUST NOT contain semicolon (list separator in responses)
+            if (message != null && message.contains(";")) {
+                return Protocol.RESP_ERROR + " " + Protocol.ERR_INVALID_FORMAT + " Note content must not contain semicolon";
+            }
+
             // Validate colour
             boolean validColour = false;
             for (String c : validColours) {
